@@ -1,0 +1,211 @@
+import React, { useState } from "react";
+import { useMutation } from "@apollo/client";
+import { CREATE_CUSTOMER } from "../../graphQl/mutation/userMutation.js";
+import { useParams, useNavigate } from "react-router-dom";
+import { Snackbar, Alert, Button } from "@mui/material";
+import "./customerForm.css";
+
+const CustomerForm = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    name: "",
+    phone: "",
+    address: "",
+    city: "",
+    latitude: 0,
+    longitude: 0,
+    locationSet: false,
+  });
+
+  const [createCustomer] = useMutation(CREATE_CUSTOMER);
+
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleGetLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          setFormData({
+            ...formData,
+            latitude,
+            longitude,
+            locationSet: true,
+          });
+
+          showToast("Location fetched successfully!", "success");
+
+          try {
+            const response = await fetch(
+              `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${import.meta.env.VITE_OPENCAGE_API_KEY}`
+            );
+            const data = await response.json();
+
+            const city = data.results[0].components.city || data.results[0].components.state;
+            const address = data.results[0].formatted;
+
+            setFormData((prev) => ({
+              ...prev,
+              city,
+              address,
+            }));
+
+            showToast("Address fetched successfully!", "success");
+          } catch (error) {
+            showToast("Failed to fetch address.", "error");
+          }
+        },
+        () => {
+          showToast("Failed to fetch location. Please allow location access.", "error");
+        }
+      );
+    } else {
+      showToast("Geolocation is not supported by this browser.", "error");
+    }
+  };
+    
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (formData.name.trim() === "") {
+      showToast("Name is required.", "error");
+      return false;
+    }
+
+    if (!/^\d{10}$/.test(formData.phone)) {
+      showToast("Phone number must be exactly 10 digits.", "error");
+      return false;
+    }
+
+    if (formData.address.trim() === "") {
+      showToast("Address is required.", "error");
+      return false;
+    }
+
+    if (formData.city.trim() === "") {
+      showToast("City is required.", "error");
+      return false;
+    }
+
+    if (!formData.locationSet) {
+      showToast("Please fetch your current location.", "error");
+      return false;
+    }
+
+    try {
+      await createCustomer({
+        variables: {
+          userId: id,
+          name: formData.name,
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          latitude: formData.latitude,
+          longitude: formData.longitude,
+        },
+      });
+
+      showToast("Customer profile created successfully!", "success");
+      navigate("/dashboard");
+    } catch (err) {
+      showToast("Failed to create customer profile!", "error");
+    }
+  };
+
+  const showToast = (message, severity) => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setOpenSnackbar(true);
+  };
+
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
+
+  return (
+    <div className="profile-info">
+      <h3>Create Customer Profile</h3>
+      <form onSubmit={handleSubmit}>
+        <label>Name</label>
+        <input
+          type="text"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          placeholder="Enter your full name"
+          required
+        />
+
+        <label>Phone Number</label>
+        <input
+          type="text"
+          name="phone"
+          value={formData.phone}
+          onChange={handleChange}
+          placeholder="Enter your 10-digit phone number"
+          maxLength="10"
+          required
+        />
+
+        <label>Address</label>
+        <textarea
+          name="address"
+          value={formData.address}
+          onChange={handleChange}
+          placeholder="Enter your complete address"
+          required
+        />
+
+        <label>City</label>
+        <input
+          type="text"
+          name="city"
+          value={formData.city}
+          onChange={handleChange}
+          placeholder="Enter your city"
+        />
+
+        <label>Set Location</label>
+        <button
+          type="button"
+          className={`get-location-btn ${formData.locationSet ? 'success' : ''}`}
+          onClick={handleGetLocation}
+        >
+          {formData.locationSet ? "Location Set ✔" : "Get Current Location"}
+        </button>
+
+        <button type="submit" className="save-btn">
+          Create Customer Profile
+        </button>
+      </form>
+
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+    </div>
+  );
+};
+
+export default CustomerForm;
