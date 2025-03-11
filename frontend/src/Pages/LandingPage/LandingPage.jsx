@@ -5,18 +5,14 @@ import "./landingPage.css";
 
 const LandingPage = () => {
     const services = [
-        { name: "Electrical", description: "Reliable elect      rical services for installations and repairs." },
-        { name: "Plumbing", description: "Expert plumbing services for residential and commercial needs." },
-        { name: "Installation", description: "Professional installation services for all types of equipment." },
-        { name: "Maintenance", description: "Regular maintenance services to keep your equipment running smoothly." },
-        { name: "Television", description: "Television repair and installation services." },
-        { name: "System", description: "Computer system repair and maintenance services." },
-        { name: "AC", description: "Air conditioning installation and repair services." },
-        { name: "RO", description: "RO water purifier installation and maintenance services." },
-        { name: "Washing Machine", description: "Washing machine repair and maintenance services." },
-        { name: "Refrigerator", description: "Refrigerator repair and maintenance services." },
-        { name: "Microwave Oven", description: "Microwave Oven repair and maintenance services." },
-        { name: "Cleaning", description: "Professional cleaning services for homes and offices." },
+        { name: "Plumber", description: "Expert plumbing services for residential and commercial needs." },
+        { name: "Electrician", description: "Professional electrical services for installations and repairs." },
+        { name: "Carpenter", description: "High-quality carpentry services for furniture and home improvement." },
+        { name: "Mechanic", description: "Car and bike repair services at your doorstep." },
+        { name: "Painter", description: "Interior and exterior painting services for homes and offices." },
+        { name: "Cleaner", description: "Professional cleaning services for homes, offices, and industries." },
+        { name: "AC Technician", description: "Air conditioning installation, repair, and maintenance services." },
+        { name: "Appliance Repairer", description: "Repair services for washing machines, refrigerators, and other appliances." },
     ];
 
     return (
@@ -52,35 +48,14 @@ const LandingPage = () => {
                 <img src={heroimg} alt="Technician at work" />
             </div>
 
-            <section className="benefit-section">
-                <h2>Why Choose Us?</h2>
-                <div className="cards-section">
-                    <div className="cards">
-                        <i className="fa-solid fa-lock"></i>
-                        <h3>Secure Payments</h3>
-                        <p>Our platform ensures secure transactions with trusted payment gateways.</p>
-                    </div>
-                    <div className="cards">
-                        <i className="fa-solid fa-user-tie"></i>
-                        <h3>Verified Professionals</h3>
-                        <p>We rigorously vet our freelancers to ensure quality service.</p>
-                    </div>
-                    <div className="cards">
-                        <i className="fa-solid fa-ranking-star"></i>
-                        <h3>Quality Talent</h3>
-                        <p>Access a diverse pool of skilled freelancers for your project needs.</p>
-                    </div>
-                </div>
-            </section>
-
             <div id="services-page">
-                <h1>Our Services</h1>
+                <h1>Services</h1>
                 <div className="services-grid">
                     {services.map((service, index) => (
                         <div className="service-card" key={index}>
                             <h2>{service.name}</h2>
                             <p>{service.description}</p>
-                            <Link to="/login">
+                            <Link to="/signIn">
                                 <button>Book Now</button>
                             </Link>
                         </div>
@@ -92,7 +67,10 @@ const LandingPage = () => {
                 <div className="footer-content">
                     <div className="footer-section">
                         <h3>About Us</h3>
-                        <p>We connect talented professionals with clients seeking top-notch services.</p>
+                        <p>This website is intended for informational purposes only.
+                            We connect clients with local service professionals but do not
+                            guarantee the quality of service. Please use the services at your own risk.
+                            We are not liable for any loss or issues arising from the use of these services.</p>
                     </div>
                     <div className="footer-section">
                         <h3>Quick Links</h3>

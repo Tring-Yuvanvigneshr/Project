@@ -1,14 +1,31 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useQuery } from "@apollo/client";
+import { GET_CUSTOMER_DETAILS } from "../../graphQl/queries/userQueries";
 import ProfileInfo from "../ProfileInfo/ProfileInfo";
-import ServiceStats from "../ServiceStats/ServiceStats";
-import ServiceHistory from "../ServiceHistory/ServiceHistory";
+import { useDispatch, useSelector } from "react-redux";
+import { setCustomerDetails } from "../../redux/slices/customerSlice";
+import { useNavigate } from "react-router-dom";
 import "./dashboard.css";
 
 const Dashboard = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user } = useSelector(state => state.auth);
+
+  const { data } = useQuery(GET_CUSTOMER_DETAILS, {
+    variables: { userId: user.id },
+    fetchPolicy: "network-only",  
+  });
+
+    if (data?.getCustomerDetails) {
+      dispatch(setCustomerDetails(data.getCustomerDetails));
+    } else {
+      navigate(`/create-customer/${user.id}`);
+    }
+
   return (
     <div className="dashboard-container">
       <ProfileInfo />
-      {/* <ServiceStats /> */}
     </div>
   );
 };

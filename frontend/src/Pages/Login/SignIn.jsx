@@ -4,8 +4,13 @@ import { useMutation } from "@apollo/client";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../redux/slices/authSlice";
 import { SIGN_IN } from "../../graphQl/mutation/userMutation";
-import { notify } from "../../utils/CreateToast";
 import "./SignIn.css";
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -13,6 +18,21 @@ const SignIn = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [open, setOpen] = useState(false);
+  const [toastData, setToastData] = useState({
+    message: '',
+    type: 'info'
+  });
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setOpen(false);
+  };
+
+  const notify = ({ message, type = "info" }) => {
+    setToastData({ message, type });
+    setOpen(true);
+  };
 
   const [signIn, { loading }] = useMutation(SIGN_IN, {
     onCompleted: (data) => {
@@ -23,15 +43,16 @@ const SignIn = () => {
         if (user.role === "customer") {
           navigate("/dashboard");
         } else if (user.role === "worker") {
-          navigate("/wdashboard");
+          navigate("/bookings");
         } else {
           setError("Invalid role!");
         }
-        notify({ message: "login successfully", type: "success" });
+        notify({ message: "Login Successfully", type: "success" });
       }
     },
     onError: (error) => {
       setError(error.message);
+      notify({ message: error.message, type: "error" });
     },
   });
 
@@ -41,6 +62,7 @@ const SignIn = () => {
 
     if (!email || !password) {
       setError("Please enter both email and password.");
+      notify({ message: "Please fill all fields", type: "warning" });
       return;
     }
 
@@ -56,7 +78,6 @@ const SignIn = () => {
       <form onSubmit={handleLogin}>
         <div className="login-box">
           <h2 className="loginHeadder">Sign In</h2>
-          {error && <p className="error">{error}</p>}
           <input
             type="email"
             placeholder="Email"
@@ -71,8 +92,8 @@ const SignIn = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button id="login-btn" type="submit" disabled={loading}>
-            {loading ? "Signing In..." : "Sign In"}
+          <button id="login-btn" type="submit">
+          Sign In
           </button>
           <p>
             Don't have an account?{" "}
@@ -82,6 +103,16 @@ const SignIn = () => {
           </p>
         </div>
       </form>
+
+      <Snackbar 
+        open={open} 
+        autoHideDuration={4000} 
+        onClose={handleClose}
+      >
+        <Alert onClose={handleClose} severity={toastData.type} sx={{ width: '100%' }}>
+          {toastData.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

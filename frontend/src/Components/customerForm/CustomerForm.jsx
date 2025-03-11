@@ -3,11 +3,14 @@ import { useMutation } from "@apollo/client";
 import { CREATE_CUSTOMER } from "../../graphQl/mutation/userMutation.js";
 import { useParams, useNavigate } from "react-router-dom";
 import { Snackbar, Alert, Button } from "@mui/material";
+import { useDispatch } from "react-redux";
+import { setCustomerDetails } from "../../redux/slices/customerSlice";
 import "./customerForm.css";
 
 const CustomerForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -74,7 +77,6 @@ const CustomerForm = () => {
       showToast("Geolocation is not supported by this browser.", "error");
     }
   };
-    
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -105,7 +107,7 @@ const CustomerForm = () => {
     }
 
     try {
-      await createCustomer({
+      const { data } = await createCustomer({
         variables: {
           userId: id,
           name: formData.name,
@@ -116,6 +118,8 @@ const CustomerForm = () => {
           longitude: formData.longitude,
         },
       });
+
+      dispatch(setCustomerDetails(data.createCustomer));
 
       showToast("Customer profile created successfully!", "success");
       navigate("/dashboard");

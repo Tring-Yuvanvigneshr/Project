@@ -1,9 +1,10 @@
-.custom-sidebar {
+.c-custom-sidebar {
   width: 250px;
   height: 100vh;
   background: #f4f4f4;
   padding: 20px;
   position: fixed;
+  margin-top: -10px;
 }
 
 .custom-profile {
@@ -14,7 +15,6 @@
 .custom-profile-pic {
   width: 80px;
   height: 80px;
-  background: gray;
   border-radius: 50%;
   margin: auto;
 }
@@ -45,6 +45,5 @@
 
 .custom-nav-list li a.custom-active,
 .custom-nav-list li a:hover {
-  background: black;
-  color: white;
+  color: rgb(108, 108, 205);
 }

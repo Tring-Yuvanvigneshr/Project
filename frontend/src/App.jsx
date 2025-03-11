@@ -13,8 +13,12 @@ import Services from './Components/ServiceStats/ServiceStats'
 import WorkerDetails from './Components/WorkerDeatails/WorkerDetails'
 import ProtectedRoute from './ProtectedRoute/ProtectedRoute'
 import LandingPage from './Pages/LandingPage/landingPage'
-import WorkerForm from './Components/WorkerForm/WorkerForm.jsx';
-import CustomerForm from './Components/customerForm/CustomerForm.jsx';
+import WorkerForm from './Components/WorkerForm/WorkerForm.jsx'
+import CustomerForm from './Components/customerForm/CustomerForm.jsx'
+import WorkerLayout from './WComponents/WorkerLayout/WorkerLayout.jsx'
+import WServiceHistory from './WComponents/WServiceHistory/ServiceHistory.jsx'
+import BookingStats from './WComponents/Bookingstats/BookingStats.jsx'
+import BookingDetails from './WComponents/WBookingDetails/BookingDetails.jsx'
 
 const Layout = ({ children }) => {
   return (
@@ -33,12 +37,11 @@ const App = () => {
       <ApolloProvider client={client}>
         <BrowserRouter>
           <Routes>
+
+            {/* Public Routes */}
             <Route path='/signIn' element={<SignIn />} />
             <Route path='/signUp' element={<Signup />} />
             <Route path='/' element={<LandingPage />}></Route>
-            
-
-
 
             <Route element={<ProtectedRoute allowedRoles={["customer"]} />}>
               <Route path='/customerForm/:id' element={<CustomerForm />}></Route>
@@ -50,6 +53,9 @@ const App = () => {
 
             <Route element={<ProtectedRoute allowedRoles={["worker"]} />}>
               <Route path='/workerForm/:id' element={<WorkerForm />}></Route>
+              <Route path='/wHistory' element={<WorkerLayout><WServiceHistory /></WorkerLayout>} />
+              <Route path='/bookings' element={<WorkerLayout><BookingStats /></WorkerLayout>} />
+              <Route path="/booking-details/:id" element={<BookingDetails />} />
             </Route>
 
           </Routes>
