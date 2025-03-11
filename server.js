@@ -1,0 +1,45 @@
+require("dotenv").config()
+const express = require("express")
+const cors = require("cors")
+const { createServer } = require("http")
+const { ApolloServer } = require("@apollo/server")
+const { expressMiddleware } = require("@apollo/server/express4")
+const { postgraphile } = require("postgraphile")
+const typeDefs = require("./src/graphql/typeDef")
+const resolvers = require("./src/graphql/resolvers")
+const authenticateUser = require("./src/middleware/authMiddleware")
+const { log } = require("console")
+
+
+const app = express()
+app.use(express.json())
+
+const corsOptions = {
+  origin: 'http://localhost:5173',
+  credentials: true,
+};
+
+app.use(cors(corsOptions))
+
+
+const apolloServer = new ApolloServer({
+  typeDefs, 
+  resolvers
+})
+
+async function startApolloServer() {
+  await apolloServer.start()
+  app.use("/graphql", expressMiddleware(apolloServer, {
+    context: async ({ req }) => {
+      const user = authenticateUser(req);
+      console.log(user)
+      return { user };
+    }
+  }));
+
+  app.listen('5000', () => {
+    console.log('server started')
+  })
+}
+
+startApolloServer()
