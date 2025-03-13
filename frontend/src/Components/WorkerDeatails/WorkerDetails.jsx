@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useQuery, useMutation, gql } from "@apollo/client";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
@@ -63,7 +63,8 @@ const CREATE_BOOKING = gql`
 `;
 
 const WorkerDetails = () => {
-    const { id } = useParams();
+    const location = useLocation()
+    const id = location.state
     const [showModal, setShowModal] = useState(false);
     const [jobDescription, setJobDescription] = useState("");
     const [scheduledTime, setScheduledTime] = useState("");
@@ -185,7 +186,7 @@ const WorkerDetails = () => {
                         {reviews?.length > 0 ? (
                             reviews.map((review, index) => (
                                 <div key={index} className="review-card">
-                                    <textarea className="review-text">{review.comment}</textarea>
+                                    <textarea className="review-text" readOnly>{review.comment}</textarea>
                                     <p className="review-rating">⭐ {review.rating}/5</p>
                                     <p className="review-date">
                                         {new Date(parseInt(review.created_at)).toLocaleDateString()}

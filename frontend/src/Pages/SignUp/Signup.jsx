@@ -17,7 +17,6 @@ const SignUp = () => {
 
     const [errorMessage, setErrorMessage] = useState(null);
     const [emailError, setEmailError] = useState(null);
-    const [serverError, setServerError] = useState(null);
     const [openToast, setOpenToast] = useState(false);
     const [toastMessage, setToastMessage] = useState("");
     const [toastSeverity, setToastSeverity] = useState("success");
@@ -42,7 +41,6 @@ const SignUp = () => {
             } else {
                 showToast("Sign-up unsuccessful!", "error");
             }
-            setServerError(error.message);
         }
     });
 
@@ -54,15 +52,14 @@ const SignUp = () => {
                 dispatch(setUser({ token, user }));
 
                 if (user.role === "worker") {
-                    navigate(`/workerForm/${user.id}`);
+                    navigate("/workerForm", { state: user.id});
                 } else {
-                    navigate(`/customerForm/${user.id}`);
+                    navigate("/customerForm", { state: user.id});
                 }
             }
         },
         onError: (error) => {
             showToast("Sign-in unsuccessful!", "error");
-            setServerError(error.message);
         }
     });
 

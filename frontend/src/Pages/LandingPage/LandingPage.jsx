@@ -68,9 +68,7 @@ const LandingPage = () => {
                     <div className="footer-section">
                         <h3>About Us</h3>
                         <p>This website is intended for informational purposes only.
-                            We connect clients with local service professionals but do not
-                            guarantee the quality of service. Please use the services at your own risk.
-                            We are not liable for any loss or issues arising from the use of these services.</p>
+                            We connect clients with local service professionals.</p>
                     </div>
                     <div className="footer-section">
                         <h3>Quick Links</h3>

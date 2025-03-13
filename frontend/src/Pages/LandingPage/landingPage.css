@@ -50,7 +50,7 @@
 }
 
 .btn-dark:hover {
-    background-color: #23272b; /* Slightly Darker on Hover */
+    background-color: #23272b;
 }
 
 .contact h5 {
@@ -130,7 +130,6 @@
 .cards-section {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    /* 3 columns */
     gap: 1rem;
 }
 
@@ -159,9 +158,7 @@
 .services-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    /* 4 columns */
     gap: 1.5rem;
-    /* Space between boxes */
     justify-items: center;
 }
 

@@ -15,7 +15,6 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
@@ -24,8 +23,7 @@ const SignIn = () => {
     type: 'info'
   });
 
-  const handleClose = (event, reason) => {
-    if (reason === 'clickaway') return;
+  const handleClose = () => {
     setOpen(false);
   };
 
@@ -45,23 +43,20 @@ const SignIn = () => {
         } else if (user.role === "worker") {
           navigate("/bookings");
         } else {
-          setError("Invalid role!");
+          notify({ message: "Invalid role!", type: "error"});
         }
         notify({ message: "Login Successfully", type: "success" });
       }
     },
     onError: (error) => {
-      setError(error.message);
       notify({ message: error.message, type: "error" });
     },
   });
 
   const handleLogin = async (event) => {
     event.preventDefault();
-    setError(null);
 
     if (!email || !password) {
-      setError("Please enter both email and password.");
       notify({ message: "Please fill all fields", type: "warning" });
       return;
     }

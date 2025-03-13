@@ -1,8 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useQuery } from "@apollo/client";
-import { GET_ALL_WORKERS, GET_ALL_REVIEWS, GET_NEARBY_WORKERS } from "../../graphQl/queries/userQueries.js";
+import { 
+  GET_ALL_WORKERS, 
+  GET_ALL_REVIEWS, 
+  GET_NEARBY_WORKERS, 
+} from "../../graphQl/queries/userQueries.js";
+import { GET_AVAILABLE_WORKERS } from "../../graphQl/queries/workerQueries.js";
 import { useNavigate } from "react-router-dom";
-import { TextField, Pagination, FormControlLabel, Checkbox, Rating, Chip, Tooltip } from '@mui/material';
+import { TextField, Pagination, FormControlLabel, Checkbox, Chip, Tooltip } from '@mui/material';
 import { notify } from "../../utils/CreateToast.jsx";
 import placeholder from './../../assets/Images/placeholder.jpg';
 import "./serviceStats.css";
@@ -23,7 +28,7 @@ const Services = () => {
 
   const { loading, error, data } = useQuery(GET_ALL_WORKERS, {
     fetchPolicy: "network-only",
-    skip: filters.nearbyOnly
+    skip: filters.nearbyOnly || filters.availableOnly
   });
 
   const { loading: nearbyLoading, error: nearbyError, data: nearbyData } = useQuery(GET_NEARBY_WORKERS, {
@@ -32,10 +37,16 @@ const Services = () => {
     skip: !filters.nearbyOnly,
   });
 
+  const { loading: availableLoading, error: availableError, data: availableData } = useQuery(GET_AVAILABLE_WORKERS, {
+    fetchPolicy: "network-only",
+    skip: !filters.availableOnly,
+  });
+
   const { loading: reviewLoading, error: reviewError, data: reviewData } = useQuery(GET_ALL_REVIEWS, {
     fetchPolicy: "network-only"
   });
 
+  
   const handleSearch = (e) => {
     setSearchQuery(e.target.value.toLowerCase());
     setPage(1);
@@ -52,35 +63,45 @@ const Services = () => {
     });
     setPage(1);
   };
-
+  
   const getAverageRating = (workerId) => {
     const workerReviews = reviewData?.reviews.filter(review => review.worker_id === workerId);
-    if (workerReviews?.length === 0) return { average: 0, total: 0 };
+    if (!workerReviews || workerReviews.length === 0) return { average: 0, total: 0 };
     const totalRating = workerReviews.reduce((acc, review) => acc + review.rating, 0);
     const average = totalRating / workerReviews.length;
     return { average, total: workerReviews.length };
   };
 
   const truncateText = (text, maxLength) => {
-    if (text.length > maxLength) {
-      return text.substring(0, maxLength) + "...";
-    }
-    return text;
+    return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
   };
 
-  const workers = filters.nearbyOnly ? nearbyData?.getNearbyWorkers : data?.workers;
+  const workers = (() => {
+    if (filters.nearbyOnly && filters.availableOnly) {
+      return nearbyData?.getNearbyWorkers?.filter(worker => worker.is_available);
+    }
+    if (filters.nearbyOnly) {
+      return nearbyData?.getNearbyWorkers;
+    }
+    if (filters.availableOnly) {
+      return availableData?.getAvailableWorkers;
+    }
+    return data?.workers;
+  })();
 
   const filteredWorkers = workers
     ?.filter(worker => worker.profession.toLowerCase().startsWith(searchQuery))
-    .filter(worker => filters.availableOnly ? worker.is_available : true)
-    .filter(worker => filters.highRatingOnly ? (getAverageRating(worker.id).average >= 4) : true);
+    .filter(worker => (filters.highRatingOnly ? getAverageRating(worker.id).average >= 4 : true));
 
   const indexOfLastWorker = page * workersPerPage;
   const indexOfFirstWorker = indexOfLastWorker - workersPerPage;
   const currentWorkers = filteredWorkers?.slice(indexOfFirstWorker, indexOfLastWorker);
 
-  if (loading || reviewLoading || (filters.nearbyOnly && nearbyLoading)) return <p className="loading">Loading services...</p>;
-  if (error || reviewError || nearbyError) {
+  if (loading || reviewLoading || (filters.nearbyOnly && nearbyLoading) || (filters.availableOnly && availableLoading)) {
+    return <p className="loading">Loading services...</p>;
+  }
+
+  if (error || reviewError || nearbyError || availableError) {
     notify({ message: "Failed to fetch services.", type: "error" });
     return <p className="error">Error loading services</p>;
   }
@@ -119,17 +140,22 @@ const Services = () => {
             <div
               key={worker.id}
               className="service-card"
-              onClick={() => navigate(`/workerDetails/${worker.id}`)}
+              onClick={() => navigate("/workerDetails", 
+                {
+                  state: worker.id
+                }
+              )}
             >
-              <img
-                src={worker.profile_image || placeholder}
-                alt={worker.name}
-              />
+              <img src={worker.profile_image || placeholder} alt={worker.name} />
               <div className="service-card-content">
-                {worker.name.length > 15 ? <Tooltip title={worker.name} arrow>
-                    {truncateText(worker.name, 15)}
-                </Tooltip> : worker.name} 
-                <p><strong>Profession:</strong> {worker.profession}</p>
+                <Tooltip title={worker.name} arrow>
+                  <p>{truncateText(worker.name, 15)}</p>
+                </Tooltip>
+                <p><strong>Profession:</strong>
+                  <Tooltip title={worker.profession} arrow>
+                    {truncateText(worker.profession, 10)}
+                  </Tooltip>
+                </p>
                 <div className="service-rating">
                   <p>{average.toFixed(1)} ({total} reviews)</p>
                 </div>
@@ -140,9 +166,7 @@ const Services = () => {
                     size="small"
                   />
                 </div>
-                <button>
-                  <small>View Details</small>
-                </button>
+                <button><small>View Details</small></button>
               </div>
             </div>
           );

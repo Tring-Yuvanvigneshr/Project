@@ -1,6 +1,5 @@
 import { ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
-import { store } from "../redux/store"; 
 
 const httpLink = createHttpLink({
   uri: "http://localhost:5000/graphql", 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useMutation, gql } from "@apollo/client";
 import "./workerForm.css";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 
@@ -43,8 +43,10 @@ const CREATE_WORKER = gql`
 `;
 
 export default function AddWorkerForm() {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const location = useLocation()
+  const id = location.state
+  const navigate = useNavigate()
+
   const [formData, setFormData] = useState({
     userId: "",
     name: "",
@@ -59,7 +61,7 @@ export default function AddWorkerForm() {
     available_from: "",
     available_to: "",
     locationSet: false,
-  });
+  })
 
   const [createWorker] = useMutation(CREATE_WORKER);
   const [open, setOpen] = useState(false);
@@ -67,13 +69,13 @@ export default function AddWorkerForm() {
   const [toastSeverity, setToastSeverity] = useState("success");
 
   const showToast = (message, severity = "success") => {
-    setToastMessage(message);
-    setToastSeverity(severity);
-    setOpen(true);
+    setToastMessage(message)
+    setToastSeverity(severity)
+    setOpen(true)
   };
 
   const handleClose = () => {
-    setOpen(false);
+    setOpen(false)
   };
 
   const handleChange = (e) => {
@@ -102,12 +104,12 @@ export default function AddWorkerForm() {
             const response = await fetch(
               `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${import.meta.env.VITE_OPENCAGE_API_KEY}`
             );
-            const data = await response.json();
+            const data = await response.json()
 
             const city =
               data.results[0].components.city ||
-              data.results[0].components.state;
-            const address = data.results[0].formatted;
+              data.results[0].components.state
+            const address = data.results[0].formatted
 
             setFormData((prev) => ({
               ...prev,
@@ -117,43 +119,43 @@ export default function AddWorkerForm() {
 
             showToast("Address fetched successfully!");
           } catch (error) {
-            showToast("Failed to fetch address. Enter manually.", "error");
+            showToast("Failed to fetch address. Enter manually.", "error")
           }
         },
         (error) => {
-          showToast("Failed to fetch location. Allow location access.", "error");
+          showToast("Failed to fetch location. Allow location access.", "error")
         }
       );
     } else {
-      showToast("Geolocation is not supported by this browser.", "error");
+      showToast("Geolocation is not supported by this browser.", "error")
     }
-  };
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (formData.profession.trim() === "") {
-      showToast("Please select a profession!", "error");
+      showToast("Please select a profession!", "error")
       return;
     }
 
     if (formData.experience < 0) {
-      showToast("Experience cannot be negative!", "error");
+      showToast("Experience cannot be negative!", "error")
       return;
     }
 
     if (formData.aadhar_number.length !== 12) {
-      showToast("Aadhar number must be 12 digits!", "error");
+      showToast("Aadhar number must be 12 digits!", "error")
       return;
     }
 
     if (formData.phone.length !== 10) {
-      showToast("Phone number must be 10 digits!", "error");
+      showToast("Phone number must be 10 digits!", "error")
       return;
     }
 
     if (!formData.locationSet) {
-      showToast("Please set your location!", "error");
+      showToast("Please set your location!", "error")
       return;
     }
 
@@ -173,13 +175,13 @@ export default function AddWorkerForm() {
           available_from: formData.available_from,
           available_to: formData.available_to,
         },
-      });
+      })
 
       showToast("Worker profile created successfully!", "success");
-      navigate("/bookings");
+      navigate("/bookings")
     } catch (err) {
       showToast("Failed to create worker profile!", "error");
-      console.error("Error creating worker:", err);
+      console.error("Error creating worker:", err)
     }
   };
 
@@ -257,6 +259,7 @@ export default function AddWorkerForm() {
           name="available_to"
           value={formData.available_to}
           onChange={handleChange}
+          min={formData.available_from}
           required
         />
 

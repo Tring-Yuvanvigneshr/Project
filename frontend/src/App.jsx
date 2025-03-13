@@ -38,21 +38,20 @@ const App = () => {
         <BrowserRouter>
           <Routes>
 
-            {/* Public Routes */}
             <Route path='/signIn' element={<SignIn />} />
             <Route path='/signUp' element={<Signup />} />
             <Route path='/' element={<LandingPage />}></Route>
 
-            <Route element={<ProtectedRoute allowedRoles={["customer"]} />}>
-              <Route path='/customerForm/:id' element={<CustomerForm />}></Route>
+            <Route element={<ProtectedRoute allowedRoles={["customer"]} />}> 
+              <Route path='/customerForm' element={<CustomerForm />}></Route> { /* passing id */}
               <Route path='/dashboard' element={<Layout><Dashboard /></Layout>} />
               <Route path='/history' element={<Layout><ServiceHistory /></Layout>} />
               <Route path='/services' element={<Layout><Services /></Layout>} />
-              <Route path="/workerDetails/:id" element={<WorkerDetails />} />
+              <Route path="/workerDetails" element={<WorkerDetails />} />  { /* passing id */}
             </Route>
 
             <Route element={<ProtectedRoute allowedRoles={["worker"]} />}>
-              <Route path='/workerForm/:id' element={<WorkerForm />}></Route>
+              <Route path='/workerForm' element={<WorkerForm />}></Route> { /* passing id */}
               <Route path='/wHistory' element={<WorkerLayout><WServiceHistory /></WorkerLayout>} />
               <Route path='/bookings' element={<WorkerLayout><BookingStats /></WorkerLayout>} />
               <Route path="/booking-details/:id" element={<BookingDetails />} />

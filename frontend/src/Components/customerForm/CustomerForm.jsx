@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 import { useMutation } from "@apollo/client";
 import { CREATE_CUSTOMER } from "../../graphQl/mutation/userMutation.js";
-import { useParams, useNavigate } from "react-router-dom";
-import { Snackbar, Alert, Button } from "@mui/material";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Snackbar, Alert } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { setCustomerDetails } from "../../redux/slices/customerSlice";
 import "./customerForm.css";
 
 const CustomerForm = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
+
+  const id = location.state
 
   const [formData, setFormData] = useState({
     name: "",

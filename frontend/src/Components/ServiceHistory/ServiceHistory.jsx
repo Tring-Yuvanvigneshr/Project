@@ -23,10 +23,7 @@ const GET_BOOKINGS_BY_CUSTOMER = gql`
       job_description
       scheduled_time
       status
-      worker {
-        id
-        name
-      }
+
     }
   }
 `;
@@ -114,7 +111,7 @@ const ServiceHistory = () => {
       await addReview({
         variables: {
           customerId: customer.id,
-          workerId: selectedBooking.worker.id,
+          workerId: selectedBooking.id,
           rating,
           comment: comment.trim(),
         },
@@ -153,7 +150,7 @@ const ServiceHistory = () => {
                     {item.job_description}
                   </Typography>
                   <Typography variant="subtitle1">
-                    Provider: <strong>{item.worker.name}</strong>
+                    Provider: <strong>{item.name}</strong>
                   </Typography>
                   <Typography variant="body2">
                     Date: {new Date(parseInt(item.scheduled_time)).toLocaleDateString()}

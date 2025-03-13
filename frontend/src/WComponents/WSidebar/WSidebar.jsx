@@ -1,7 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import "./wsidebar.css";
-import { useSelector } from "react-redux";
 import Navbar from './../Wnavbar/Wnavbar.jsx';
 
 
