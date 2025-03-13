@@ -1,15 +1,11 @@
 require("dotenv").config()
 const express = require("express")
 const cors = require("cors")
-const { createServer } = require("http")
 const { ApolloServer } = require("@apollo/server")
 const { expressMiddleware } = require("@apollo/server/express4")
-const { postgraphile } = require("postgraphile")
 const typeDefs = require("./src/graphql/typeDef")
 const resolvers = require("./src/graphql/resolvers")
 const authenticateUser = require("./src/middleware/authMiddleware")
-const { log } = require("console")
-
 
 const app = express()
 app.use(express.json())
