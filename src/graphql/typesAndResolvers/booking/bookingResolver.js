@@ -32,6 +32,7 @@ const booking_resolver = {
         job_description: row.job_description,
         scheduled_time: row.scheduled_time,
         status: row.status,
+        worker_id: row.worker_id,
         worker: {
           id: row.worker_id,
           name: row.worker_name,

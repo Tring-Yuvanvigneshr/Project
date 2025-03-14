@@ -14,6 +14,17 @@ const customer_resolvers = {
       const { rows } = await pool.query(
         `SELECT id, user_id, name, phone, address, city,
          location
+         FROM customers WHERE id = $1`,
+        [userId]
+      );
+
+      return rows[0];
+    },
+
+    getCustomerDetailsByUserid: async (_, { userId }) => {    //  for login purpose
+      const { rows } = await pool.query(
+        `SELECT id, user_id, name, phone, address, city,
+         location
          FROM customers WHERE user_id = $1`,
         [userId]
       );
@@ -21,6 +32,8 @@ const customer_resolvers = {
       return rows[0];
     },
   },
+
+  
 
   Mutation: {
     createCustomer: async (_, { userId, name, phone, address, city, latitude, longitude }) => {

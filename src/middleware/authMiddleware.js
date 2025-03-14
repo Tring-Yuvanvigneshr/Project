@@ -4,10 +4,14 @@ require("dotenv").config();
 const authenticateUser = (req) => {
     const authHeader = req.headers.authorization;
     console.log(req)
-    if (!authHeader) return null; 
+    if (!authHeader){
+        throw Error("Token not found.Please provide token");
+    } 
     
     const token = authHeader.split(" ")[1];
-    if (!token) return null;
+    if (!token){
+        throw Error("Token format is incorrect");
+    }
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);

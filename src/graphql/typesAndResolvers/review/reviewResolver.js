@@ -21,7 +21,23 @@ const review_resolvers = {
             `, [worker_id]);
       
             return rows;
-          }
+          },
+
+          getReview: async (_, { customer_id, worker_id }) => {
+            try {
+              const { rows } = await pool.query(
+                `SELECT id, rating, comment 
+                 FROM reviews 
+                 WHERE customer_id = $1 AND worker_id = $2`,
+                [customer_id, worker_id]
+              );
+          
+              return rows[0] || null;
+            } catch (error) {
+              console.error("Failed to fetch review:", error);
+              throw new Error("Failed to fetch review");
+            }
+          },
     },
 
     Mutation: {

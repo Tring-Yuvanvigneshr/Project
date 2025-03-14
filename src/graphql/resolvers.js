@@ -1,8 +1,8 @@
-const userResolvers = require("./type_and_resolvers/user/user_Resolver");
-const customerResolvers = require("./type_and_resolvers/customer/customer_Resolver");
-const workerResolvers = require("./type_and_resolvers/worker/worker_Resolver");
-const bookingResolvers = require("./type_and_resolvers/booking/booking_Resolver");
-const reviewResolvers = require("./type_and_resolvers/review/review_Resolver");
+const userResolvers = require("./typesAndResolvers/user/userResolver");
+const customerResolvers = require("./typesAndResolvers/customer/customerResolver");
+const workerResolvers = require("./typesAndResolvers/worker/workerResolver");
+const bookingResolvers = require("./typesAndResolvers/booking/bookingResolver");
+const reviewResolvers = require("./typesAndResolvers/review/reviewResolver");
 
 const resolvers = {
   Query: {

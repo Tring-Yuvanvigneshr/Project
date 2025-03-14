@@ -7,7 +7,7 @@ const worker_typedef = gql`
     profession: String!
     experience: Int
     location: String
-    is_available: Boolean
+    is_available: String
     created_at: String
     name: String
     address: String
@@ -23,7 +23,7 @@ const worker_typedef = gql`
       phone: String!
       profession: String!
       experience: Int!
-      is_available: Boolean
+      is_available: String
       available_from: String
       available_to: String
       customer_id: ID!
@@ -60,10 +60,10 @@ const worker_typedef = gql`
       phone: String
       profession: String
       experience: Int
-      is_available: Boolean
+      is_available: String
     ): Worker
 
-    updateWorkerAvailability(is_available: Boolean!, id: ID!): WorkerForWorker!
+    updateWorkerAvailability(is_available: String!, id: ID!): WorkerForWorker!
   }
 `;
 

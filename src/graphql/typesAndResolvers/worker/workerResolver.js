@@ -127,7 +127,7 @@ const worker_resolvers = {
             address, 
             city
           FROM workers
-          WHERE is_available = true;
+          WHERE is_available = 'available';
         `);
         return rows;
       } catch (error) {
@@ -144,9 +144,9 @@ const worker_resolvers = {
       try {
         const result = await pool.query(
           `INSERT INTO workers (
-            user_id, phone, profession, experience, aadhar, location, is_available, address, city, name, available_from, available_to
+            user_id, phone, profession, experience, aadhar, location, address, city, name, available_from, available_to
           ) VALUES (
-            $1, $2, $3, $4, $5, ST_SetSRID(ST_MakePoint($6, $7), 4326), true, $8, $9, $10, $11, $12
+            $1, $2, $3, $4, $5, ST_SetSRID(ST_MakePoint($6, $7), 4326), $8, $9, $10, $11, $12
           ) RETURNING *`,
           [userId, phone, profession, experience, aadhar_number, longitude, latitude, address, city, name, available_from, available_to]
         );

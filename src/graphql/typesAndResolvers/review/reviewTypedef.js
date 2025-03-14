@@ -14,6 +14,7 @@ const review_typedef = gql`
   extend type Query {
     reviews: [Review]
     reviewsByWorker(worker_id: ID!): [Review]
+    getReview(customer_id: ID!, worker_id: ID!): Review
   }
 
   extend type Mutation {

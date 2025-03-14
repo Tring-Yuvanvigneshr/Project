@@ -6,6 +6,7 @@ const { expressMiddleware } = require("@apollo/server/express4")
 const typeDefs = require("./src/graphql/typeDef")
 const resolvers = require("./src/graphql/resolvers")
 const authenticateUser = require("./src/middleware/authMiddleware")
+const otpRoutes = require("./src/routes/otp");
 
 const app = express()
 app.use(express.json())
@@ -27,11 +28,13 @@ async function startApolloServer() {
   await apolloServer.start()
   app.use("/graphql", expressMiddleware(apolloServer, {
     context: async ({ req }) => {
-      const user = authenticateUser(req);
+      const user = authenticateUser(req)
       console.log(user)
-      return { user };
+      return { user }
     }
-  }));
+  }))
+
+  app.use("/api", otpRoutes)
 
   app.listen('5000', () => {
     console.log('server started')
