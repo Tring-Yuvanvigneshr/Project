@@ -5,6 +5,20 @@ export const GET_CUSTOMER_DETAILS = gql`
     getCustomerDetails(userId: $userId) {
       id
       name
+      phone 
+      address
+      city
+      location
+      created_at
+    }
+  }
+`;
+
+export const GET_CUSTOMER_DETAILS_BY_USERID = gql`
+  query GetCustomerDetails($userId: ID!) {
+    getCustomerDetailsByUserid(userId: $userId) {
+      id
+      name
       phone
       address
       city

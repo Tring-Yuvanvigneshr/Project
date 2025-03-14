@@ -23,7 +23,7 @@ const GET_BOOKINGS_BY_CUSTOMER = gql`
       job_description
       scheduled_time
       status
-
+      worker_id
     }
   }
 `;
@@ -55,12 +55,28 @@ const UPDATE_BOOKING_STATUS = gql`
   }
 `;
 
+
+const GET_WORKER = gql`
+  query GetWorker($id: ID!) {
+    worker(id: $id) {
+      id
+      name
+      profession
+      experience
+      is_available
+      available_from
+      available_to
+      address
+      city
+    }
+  }
+`;
+
 const ServiceHistory = () => {
-  const user = useSelector((state) => state.auth.user);
-  const customer = useSelector((state) => state.customer.customerDetails);
+  const customer = useSelector(state => state.customer.customerDetails);
 
   const { data, refetch } = useQuery(GET_BOOKINGS_BY_CUSTOMER, {
-    variables: { customerId: user.id },
+    variables: { customerId: customer.id },
     fetchPolicy: "network-only",
   });
 
@@ -111,7 +127,7 @@ const ServiceHistory = () => {
       await addReview({
         variables: {
           customerId: customer.id,
-          workerId: selectedBooking.id,
+          workerId: selectedBooking.worker_id,
           rating,
           comment: comment.trim(),
         },
@@ -149,9 +165,7 @@ const ServiceHistory = () => {
                   >
                     {item.job_description}
                   </Typography>
-                  <Typography variant="subtitle1">
-                    Provider: <strong>{item.name}</strong>
-                  </Typography>
+
                   <Typography variant="body2">
                     Date: {new Date(parseInt(item.scheduled_time)).toLocaleDateString()}
                   </Typography>

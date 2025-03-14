@@ -10,17 +10,19 @@ import { useNavigate } from 'react-router-dom';
 const WServiceHistory = () => {
   const [filterStatus, setFilterStatus] = useState("")
   const [bookings, setBookings] = useState([])
-  const worker = useSelector(state => state.worker.workerDetails)
   const navigate = useNavigate()
+  const worker = useSelector(state => state.worker.workerDetails)
 
 
-  const { loading: allLoading, error: allError } = useQuery(GET_BOOKINGS_BY_WORKER, {
+  const { loading: allLoading, error: allError, data: workerBookingsData } = useQuery(GET_BOOKINGS_BY_WORKER, {
     variables: { worker_id: worker?.id },
     fetchPolicy: "network-only",
     onCompleted: (data) => {
       setBookings(data?.getBookingsByWorker || [])
     }
   })
+
+  const workerBookings = workerBookingsData?.getBookingsByWorker || [];
 
   const [fetchFilteredBookings, { loading: filterLoading, error: filterError }] = useLazyQuery(GET_FILTERED_BOOKINGS_BY_WORKER, {
     fetchPolicy: "network-only",
@@ -30,15 +32,16 @@ const WServiceHistory = () => {
   })
 
   const handleFilterChange = (event) => {
-    const status = event.target.value
-    setFilterStatus(status)
-
+    const status = event.target.value;
+    setFilterStatus(status);
+  
     if (status) {
-      fetchFilteredBookings({ variables: { worker_id: worker?.id, status } })
+      fetchFilteredBookings({ variables: { worker_id: worker?.id, status } });
     } else {
-      setBookings([])
+      setBookings(workerBookings);
     }
-  }
+  };
+  
 
   const handleCardClick = (booking) => {
     navigate(`/booking-details/${booking.id}`)
@@ -73,13 +76,13 @@ const WServiceHistory = () => {
                   <span className={`status-${booking.status.toLowerCase()}`}>{booking.status}</span>
                 </div>
                 <div><strong>Payment:</strong> {booking.payment_status}</div>
-                <div><strong>Booking In:</strong> {new Date(booking.created_at).toLocaleString()}</div>
+                <div><strong>Booking In:</strong> {new Date(parseInt(booking.created_at)).toLocaleString()}</div>
               </div>
 
               <div className='right-section'>
-                <div><strong>Scheduled:</strong> {new Date(booking.scheduled_time).toLocaleString()}</div>
+                <div><strong>Scheduled:</strong> {new Date(parseInt(booking.scheduled_time)).toLocaleString()}</div>
                 {booking.completed_time && (
-                  <div><strong>Completed:</strong> {new Date(booking.completed_time).toLocaleString()}</div>
+                  <div><strong>Completed:</strong> {new Date(parseInt(booking.completed_time)).toLocaleString()}</div>
                 )}
                 <button className='view-details-btn'>View Details →</button>
               </div>

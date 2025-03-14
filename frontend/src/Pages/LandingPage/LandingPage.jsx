@@ -14,6 +14,7 @@ const LandingPage = () => {
         { name: "AC Technician", description: "Air conditioning installation, repair, and maintenance services." },
         { name: "Appliance Repairer", description: "Repair services for washing machines, refrigerators, and other appliances." },
     ];
+    const d = new Date()
 
     return (
         <>
@@ -88,7 +89,7 @@ const LandingPage = () => {
                     </div>
                 </div>
                 <div className="footer-bottom">
-                    <p>&copy; 2024 Locos. All rights reserved.</p>
+                    <p>&copy; { d.getFullYear() } Locos. All rights reserved.</p>
                 </div>
             </footer>
         </>

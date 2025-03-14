@@ -69,7 +69,8 @@ const WorkerDetails = () => {
     const [jobDescription, setJobDescription] = useState("");
     const [scheduledTime, setScheduledTime] = useState("");
 
-    const user = useSelector((state) => state.auth.user);
+    const customer = useSelector((state) => state.customer.customerDetails);
+    // const user = useSelector((state) => state.auth.user)
 
 
     const { data: workerData } = useQuery(GET_WORKER, {
@@ -84,7 +85,7 @@ const WorkerDetails = () => {
 
     const { data: bookingData, refetch } = useQuery(GET_BOOKING_BY_CUSTOMER_AND_WORKER, {
         variables: {
-            customerId: user.id,
+            customerId: customer.id,
             workerId: id
         },
         fetchPolicy: "network-only",
@@ -107,7 +108,7 @@ const WorkerDetails = () => {
         try {
             await createBooking({
                 variables: {
-                    customerId: user.id,
+                    customerId: customer.id,
                     workerId: id,
                     jobDescription,
                     scheduledTime,
@@ -139,7 +140,7 @@ const WorkerDetails = () => {
     };
 
     const isButtonDisabled = () => {
-        if (!worker?.is_available) return true;
+        if (worker?.is_available === 'unavailable') return true;
         if (existingBooking?.status === "pending" || existingBooking?.status === "accepted") {
             return true;
         }
@@ -177,7 +178,7 @@ const WorkerDetails = () => {
                             <p><strong>Experience:</strong> {worker?.experience} years</p>
                             <p><strong>Available From:</strong> {worker?.available_from}</p>
                             <p><strong>Available To:</strong> {worker?.available_to}</p>
-                            <p><strong>Status:</strong> {worker?.is_available ? "Available" : "Not Available"}</p>
+                            <p><strong>Status:</strong> {worker?.is_available === 'available' ? "Available" : "Not Available"}</p>
                         </div>
                     </div>
 
@@ -203,7 +204,7 @@ const WorkerDetails = () => {
                 <div className="worker-right">
                     <div className="booking-section">
                         <h3>Booking Details</h3>
-                        <p><strong>Availability:</strong> {worker?.is_available ? "Available Now" : "Not Available"}</p>
+                        <p><strong>Availability:</strong> {worker?.is_available === 'available' ? "Available Now" : "Not Available"}</p>
                         <button
                             className="booking-button"
                             onClick={() => setShowModal(true)}

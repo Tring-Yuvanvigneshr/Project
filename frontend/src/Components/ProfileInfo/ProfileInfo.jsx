@@ -118,7 +118,7 @@ const ProfileInfo = () => {
         },
       });
 
-      dispatch(setCustomerDetails(data.updateCustomer));
+      // dispatch(setCustomerDetails(data.updateCustomer));
       toast.success("Profile updated successfully!");
     } catch (err) {
       toast.error("Failed to update profile!");

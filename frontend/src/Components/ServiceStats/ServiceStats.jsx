@@ -78,7 +78,7 @@ const Services = () => {
 
   const workers = (() => {
     if (filters.nearbyOnly && filters.availableOnly) {
-      return nearbyData?.getNearbyWorkers?.filter(worker => worker.is_available);
+      return nearbyData?.getNearbyWorkers?.filter(worker => worker.is_available == 'available');
     }
     if (filters.nearbyOnly) {
       return nearbyData?.getNearbyWorkers;
@@ -161,8 +161,8 @@ const Services = () => {
                 </div>
                 <div className="service-availability">
                   <Chip
-                    label={worker.is_available ? '✅ Available' : '❌ Not Available'}
-                    color={worker.is_available ? 'success' : 'error'}
+                    label={worker.is_available === 'available' ? '✅ Available' : '❌ Not Available'}
+                    color={worker.is_available === 'available' ? 'success' : 'error'}
                     size="small"
                   />
                 </div>

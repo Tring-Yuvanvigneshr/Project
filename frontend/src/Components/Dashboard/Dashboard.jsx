@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useQuery } from "@apollo/client";
-import { GET_CUSTOMER_DETAILS } from "../../graphQl/queries/userQueries";
+import { GET_CUSTOMER_DETAILS_BY_USERID } from "../../graphQl/queries/userQueries";
 import ProfileInfo from "../ProfileInfo/ProfileInfo";
 import { useDispatch, useSelector } from "react-redux";
 import { setCustomerDetails } from "../../redux/slices/customerSlice";
@@ -12,16 +12,16 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { user } = useSelector(state => state.auth);
 
-  const { data } = useQuery(GET_CUSTOMER_DETAILS, {
+  const { data } = useQuery(GET_CUSTOMER_DETAILS_BY_USERID, {
     variables: { userId: user.id },
     fetchPolicy: "network-only",  
   });
 
-    if (data?.getCustomerDetails) {
-      dispatch(setCustomerDetails(data.getCustomerDetails));
-    } else {
+  if (data?.getCustomerDetailsByUserid) {
+      dispatch(setCustomerDetails(data.getCustomerDetailsByUserid));
+  } else {
       navigate(`/create-customer/${user.id}`);
-    }
+  }
 
   return (
     <div className="dashboard-container">

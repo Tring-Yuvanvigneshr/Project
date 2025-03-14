@@ -12,7 +12,7 @@ import { Tooltip } from "@mui/material";
 
 
 const UPDATE_WORKER_AVAILABILITY = gql`
-  mutation updateWorkerAvailability($id: ID!, $is_available: Boolean!) {
+  mutation updateWorkerAvailability($id: ID!, $is_available: String!) {
     updateWorkerAvailability(id: $id, is_available: $is_available) {
       id
       is_available
@@ -64,7 +64,7 @@ const BookingStats = () => {
       const { data } = await updateAvailability({
         variables: {
           id: worker.id,
-          is_available: status
+          is_available: status ? "available" : "unavailable"
         }
       });
 
@@ -106,19 +106,19 @@ const BookingStats = () => {
             className={`dropdown-btn ${worker?.is_available ? 'available' : 'unavailable'}`}
             onClick={() => setShowDropdown(!showDropdown)}
           >
-            {worker?.is_available ? 'Available' : 'Unavailable'}
+            {worker?.is_available === 'available' ? 'Available' : 'Unavailable'}
           </button>
 
           {showDropdown && (
             <div className="dropdown-menu active">
               <p
-                className={worker?.is_available ? 'active' : ''}
+                className={worker?.is_available === 'available' ? 'active' : ''}
                 onClick={() => handleAvailabilityToggle(true)}
               >
                 Available
               </p>
               <p
-                className={!worker?.is_available ? 'active' : ''}
+                className={worker?.is_available === 'unavailable' ? 'active' : ''}
                 onClick={() => handleAvailabilityToggle(false)}
               >
                 Unavailable
@@ -129,13 +129,13 @@ const BookingStats = () => {
       </div>
 
       <div className="worker-details">
-        <p><strong>Name:</strong>
+        <p><strong>Name: </strong>
           {worker?.name.length > 15 ? <Tooltip title={worker?.name} arrow>
             {truncateText(worker?.name, 15)}
           </Tooltip> : worker?.name}
         </p>
         <p><strong>Profession:</strong> {worker?.profession}</p>
-        <p><strong>Availability:</strong> {worker?.is_available ? 'Available' : 'Unavailable'}</p>
+        <p><strong>Availability:</strong> {worker?.is_available == 'available' ? 'Available' : 'Unavailable'}</p>
       </div>
 
       <h3>All Bookings</h3>

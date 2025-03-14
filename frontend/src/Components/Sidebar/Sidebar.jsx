@@ -1,10 +1,12 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 import "./sidebar.css";
 
 const Sidebar = () => {
   const location = useLocation();
-  // const { name } = useSelector((state) => state.customer.customerDetails)
+  // const  { name }  = useSelector(state => state.customer.customerDetails)
+
 
   return (
     <div className="c-custom-sidebar">
@@ -12,6 +14,9 @@ const Sidebar = () => {
         <div className="custom-logo">
           <span className="custom-company-name">
             Locos
+          </span>
+          <span>
+            { name }
           </span>
         </div>
       </div>
