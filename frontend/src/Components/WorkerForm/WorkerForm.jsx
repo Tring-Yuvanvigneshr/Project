@@ -80,6 +80,14 @@ export default function AddWorkerForm() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "available_to") {
+      if (value <= formData.available_from) {
+        showToast("Available To must be later than Available From!", "error");
+        return;
+      }
+    }
+    
     setFormData({
       ...formData,
       [name]: value,
@@ -143,6 +151,12 @@ export default function AddWorkerForm() {
       showToast("Experience cannot be negative!", "error")
       return;
     }
+
+    if (formData.experience > 50) {
+      showToast("Maximum experience range is 50", "error")
+      return;
+    }
+
 
     if (formData.aadhar_number.length !== 12) {
       showToast("Aadhar number must be 12 digits!", "error")

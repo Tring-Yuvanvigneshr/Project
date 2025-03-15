@@ -154,8 +154,6 @@ const WorkerDetails = () => {
         return text;
     };
 
-    console.log(worker)
-
 
     return (
         <div className="worker-container">

@@ -58,25 +58,6 @@ export const GET_ALL_REVIEWS = gql`
 }
 `
 
-export const GET_WORKER_BY_ID = gql`
-  query GetWorkerById($id: ID!) {
-    worker(id: $id) {
-      id
-      phone
-      profession
-      experience
-      location
-      is_available
-      created_at
-      name
-      address
-      city
-      available_from
-      available_to
-    }
-  }
-`;
-
 export const GET_NEARBY_WORKERS = gql`
   query GetNearbyWorkers($userId: ID!) {
     getNearbyWorkers(userId: $userId) {

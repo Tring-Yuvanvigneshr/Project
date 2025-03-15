@@ -56,22 +56,6 @@ const UPDATE_BOOKING_STATUS = gql`
 `;
 
 
-const GET_WORKER = gql`
-  query GetWorker($id: ID!) {
-    worker(id: $id) {
-      id
-      name
-      profession
-      experience
-      is_available
-      available_from
-      available_to
-      address
-      city
-    }
-  }
-`;
-
 const ServiceHistory = () => {
   const customer = useSelector(state => state.customer.customerDetails);
 
@@ -145,6 +129,21 @@ const ServiceHistory = () => {
 
   const bookings = data?.getBookingsByCustomer || [];
 
+  const handlecolor = (status) => {
+    if(status === 'cancelled'){
+      return "red"
+    }
+    else if( status === 'accepted'){
+      return "blue"
+    }
+    else if( status === 'pending' ){
+      return "yellow"
+    }
+    else{ 
+      return "green"
+    }
+  }
+
   return (
     <div className="service-history">
       <h2>Your Service History</h2>
@@ -170,13 +169,13 @@ const ServiceHistory = () => {
                     Date: {new Date(parseInt(item.scheduled_time)).toLocaleDateString()}
                   </Typography>
                   <Typography variant="body2">
-                    Status: <strong>{item.status}</strong>
+                    Status: <strong style={{ color: handlecolor(item.status) }}>{item.status}</strong>
                   </Typography>
                 </div>
 
 
                 <div>
-                  {item.status === 'pending' && (
+                  {item.status === 'pending' || item.status === 'accepted' && (
                     <button
                       className='cancel-booking-btn'
                       onClick={() => handleCancelBooking(item.id)}

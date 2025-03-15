@@ -1,7 +1,6 @@
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { jwtDecode } from "jwt-decode";
 
 const ProtectedRoute = ({ allowedRoles }) => {
   const { user } = useSelector((state) => state.auth);
@@ -15,20 +14,7 @@ const ProtectedRoute = ({ allowedRoles }) => {
     return <Navigate to="/signIn" replace/>;
   }
 
-  try {
-    const decoded = jwtDecode(token);
-    if (decoded.exp * 1000 < Date.now()) {
-      localStorage.removeItem("token");
-      return <Navigate to="/signIn" replace/>;
-    }
-
-    return <Outlet />;
-
-  } catch (error) {
-    console.error("Invalid Token:", error);
-    localStorage.removeItem("token");
-    return <Navigate to="/signIn" replace/>;
-  }
+  return <Outlet />;
 
 };
 

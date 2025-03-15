@@ -47,7 +47,7 @@ const BookingStats = () => {
     fetchPolicy: "network-only",
   });
 
-  console.log(bookingData?.getBookingsByWorker)
+  // console.log(bookingData?.getBookingsByWorker)
   const bookings = bookingData?.getBookingsByWorker.filter((curr) => curr.status == 'pending' || curr.status == 'accepted') || [];
 
   const getStatusColor = (status) => {
