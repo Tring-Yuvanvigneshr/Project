@@ -2,12 +2,7 @@ const pool = require("../../../config/db");
 const { hashPassword, verifyPassword, generateToken } = require("../../../auth/auth");
 
 const userresolvers = {
-  Query: {
-    users: async () => {
-      const { rows } = await pool.query("SELECT id, name, email, role, created_at FROM users");
-      return rows;
-    },
-  },
+  Query: {},
 
   Mutation: {
     registerUser: async (_, { email, password, role }) => {

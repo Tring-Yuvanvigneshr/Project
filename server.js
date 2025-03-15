@@ -28,13 +28,13 @@ async function startApolloServer() {
   await apolloServer.start()
   app.use("/graphql", expressMiddleware(apolloServer, {
     context: async ({ req }) => {
-      const user = authenticateUser(req)
-      console.log(user)
-      return { user }
+      // const user = authenticateUser(req)
+      // console.log(req)
+      return req 
     }
   }))
 
-  app.use("/api", otpRoutes)
+  // app.use("/api", otpRoutes)
 
   app.listen('5000', () => {
     console.log('server started')

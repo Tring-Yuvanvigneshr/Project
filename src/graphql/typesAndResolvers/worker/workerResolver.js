@@ -1,47 +1,69 @@
-const pool = require("../../../config/db");
+const pool = require("../../../config/db")
+const { authenticateUser, customerAuthorization, workerAuthorization } = require("../../../middleware/authMiddleware")
 
 const worker_resolvers = {
   Query: {
-    workers: async () => {
-      const { rows } = await pool.query(`
-        SELECT 
-          id, 
-          phone, 
-          profession, 
-          experience, 
-          location, 
-          is_available, 
-          available_from, 
-          available_to, 
-          created_at, 
-          name
-          FROM workers 
-      `);
-      return rows;
+    workers: async (_, __, req) => {
+      try {
+
+        const user = authenticateUser(req.headers.authorization)
+        customerAuthorization(user)
+        const { rows } = await pool.query(`
+          SELECT 
+            id, 
+            phone, 
+            profession, 
+            experience, 
+            location, 
+            is_available, 
+            available_from, 
+            available_to, 
+            created_at, 
+            name
+            FROM workers 
+        `);
+        return rows;
+      } catch (error) {
+        throw new Error(error.message);
+      }
     },
 
-    worker: async (_, { id }) => {
-      const { rows } = await pool.query(`
-        SELECT 
-          id, 
-          name, 
-          phone,
-          location,
-          profession, 
-          experience, 
-          is_available, 
-          available_from, 
-          available_to
-        FROM workers
-        WHERE id = $1
-      `, [id]);
+    worker: async (_, { id }, req) => {
 
-      return rows[0];
+      try {
+
+        const user = authenticateUser(req.headers.authorization)
+        customerAuthorization(user)
+        const { rows } = await pool.query(`
+          SELECT 
+            id, 
+            name, 
+            phone,
+            location,
+            profession, 
+            experience, 
+            is_available, 
+            available_from, 
+            available_to
+          FROM workers
+          WHERE id = $1
+        `, [id]);
+
+        return rows[0];
+
+      } catch (error) {
+        throw new Error(error.message);
+      }
     },
 
 
-    getNearbyWorkers: async (_, { userId }) => {
-      const query = `
+    getNearbyWorkers: async (_, { userId }, req) => {
+
+      try {
+        const user = authenticateUser(req.headers.authorization)
+        customerAuthorization(user)
+
+        const query = `
         SELECT 
             w.id AS worker_id,
             w.name,
@@ -64,8 +86,6 @@ const worker_resolvers = {
         ORDER BY 
             distance ASC
       `;
-
-      try {
         const { rows } = await pool.query(query, [userId]);
         return rows.map(row => ({
           id: row.worker_id,
@@ -82,37 +102,15 @@ const worker_resolvers = {
           distance: row.distance
         }));
       } catch (error) {
-        console.error('Error fetching nearby workers', error);
-        throw new Error('Failed to fetch nearby workers');
+        throw new Error(error.message);
       }
     },
 
-
-
-    // for worker
-
-
-    workerForworker: async (_, { id }) => {
-      const { rows } = await pool.query(`
-        SELECT 
-          id, 
-          name, 
-          phone,
-          profession, 
-          experience, 
-          is_available, 
-          available_from, 
-          available_to
-        FROM workers
-        WHERE user_id = $1
-      `, [id]);
-
-      return rows[0];
-    },
-
-
-    getAvailableWorkers: async () => {
+    getAvailableWorkers: async (_,__, req) => {
       try {
+
+        const user = authenticateUser(req.headers.authorization)
+        customerAuthorization(user)
         const { rows } = await pool.query(`
           SELECT 
             id, 
@@ -131,17 +129,48 @@ const worker_resolvers = {
         `);
         return rows;
       } catch (error) {
-        console.error("Error fetching available workers:", error);
-        throw new Error("Failed to fetch available workers.");
+        throw new Error(error.message);
       }
-    }
+    },
 
+
+    // for worker
+
+    workerForworker: async (_, { id }, req) => {
+      try {
+
+        const user = authenticateUser(req.headers.authorization)
+        workerAuthorization(user)
+
+        const { rows } = await pool.query(`
+          SELECT 
+            id, 
+            name, 
+            phone,
+            profession, 
+            experience, 
+            is_available, 
+            available_from, 
+            available_to
+          FROM workers
+          WHERE user_id = $1
+        `, [id]);
+  
+        return rows[0];
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    },
   },
 
 
   Mutation: {
-    createWorker: async (_, { userId, phone, profession, experience, aadhar_number, latitude, longitude, address, city, name, available_from, available_to }) => {
+    createWorker: async (_, { userId, phone, profession, experience, aadhar_number, latitude, longitude, address, city, name, available_from, available_to }, req) => {
       try {
+        
+        const user = authenticateUser(req.headers.authorization)
+        workerAuthorization(user)
+
         const result = await pool.query(
           `INSERT INTO workers (
             user_id, phone, profession, experience, aadhar, location, address, city, name, available_from, available_to
@@ -153,22 +182,27 @@ const worker_resolvers = {
 
         return result.rows[0];
       } catch (error) {
-        console.error("Error inserting worker:", error);
-        return new Error("Failed to create worker. Please try again.");
+        throw new Error(error.message);
       }
     },
 
     // for worker
 
-    updateWorkerAvailability: async (_, { is_available, id }) => {
-      const result = await pool.query(
-        `UPDATE workers
-          SET is_available = $1
-          WHERE id = $2
-          RETURNING *;
-        `, [is_available, id]);
-
-      return result.rows[0];
+    updateWorkerAvailability: async (_, { is_available, id }, req) => {
+      try {
+        const user = authenticateUser(req.headers.authorization)
+        workerAuthorization(user)
+        const result = await pool.query(
+          `UPDATE workers
+            SET is_available = $1, updated_at = NOW()
+            WHERE id = $2
+            RETURNING *;
+          `, [is_available, id]);
+  
+        return result.rows[0];
+      } catch (error) {
+        throw new Error(error.message);
+      }
     },
   }
 };

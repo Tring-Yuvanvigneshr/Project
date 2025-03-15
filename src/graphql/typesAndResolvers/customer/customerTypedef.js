@@ -13,7 +13,6 @@ const customer_typedef = gql`
   }
 
   extend type Query {
-    customers: [Customer]
     getCustomerDetails(userId: ID!): Customer
     getCustomerDetailsByUserid(userId: ID!): Customer
   }
