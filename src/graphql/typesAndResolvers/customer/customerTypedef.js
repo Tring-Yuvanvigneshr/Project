@@ -10,6 +10,8 @@ const customer_typedef = gql`
     location: String
     created_at: String
     user_id: ID
+    longitude: Float
+    latitude: Float
   }
 
   extend type Query {

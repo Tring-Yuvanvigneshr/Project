@@ -84,7 +84,7 @@ const booking_resolver = {
             created_at
             FROM bookings
             WHERE worker_id = $1
-            ORDER BY scheduled_time DESC
+            ORDER BY scheduled_time ASC
         `, [worker_id]);
 
         return result.rows;
@@ -111,7 +111,7 @@ const booking_resolver = {
               created_at
             FROM bookings
             WHERE worker_id = $1 AND status = $2
-            ORDER BY scheduled_time DESC`,
+            ORDER BY scheduled_time ASC`,
           [worker_id, status]
         );
         return result.rows;

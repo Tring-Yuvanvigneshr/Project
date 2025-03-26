@@ -40,7 +40,7 @@ const review_resolvers = {
       }
     },
 
-    getReview: async (_, { customer_id, worker_id }, req) => {
+    getReview: async (_, { customer_id, worker_id }, req) => {    // in progress
 
       try {
         const user = authenticateUser(req.headers.authorization)

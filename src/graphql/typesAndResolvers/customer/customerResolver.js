@@ -30,7 +30,9 @@ const customer_resolvers = {
 
         const { rows } = await pool.query(
           `SELECT id, user_id, name, phone, address, city,
-           location
+           location,
+           ST_X(location::geometry) AS longitude, 
+           ST_Y(location::geometry) AS latitude
            FROM customers WHERE user_id = $1`,
           [userId]
         );
@@ -64,7 +66,6 @@ const customer_resolvers = {
     },
 
     updateCustomerDetails: async (_, { userId, name, phone, address, city, latitude, longitude }, req) => {
-
       try {
         const user = authenticateUser(req.headers.authorization)
         customerAuthorization(user)

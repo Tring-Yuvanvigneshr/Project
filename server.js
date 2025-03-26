@@ -5,7 +5,6 @@ const { ApolloServer } = require("@apollo/server")
 const { expressMiddleware } = require("@apollo/server/express4")
 const typeDefs = require("./src/graphql/typeDef")
 const resolvers = require("./src/graphql/resolvers")
-const authenticateUser = require("./src/middleware/authMiddleware")
 const otpRoutes = require("./src/routes/otp");
 
 const app = express()
@@ -34,7 +33,7 @@ async function startApolloServer() {
     }
   }))
 
-  // app.use("/api", otpRoutes)
+  app.use("/api", otpRoutes)
 
   app.listen('5000', () => {
     console.log('server started')

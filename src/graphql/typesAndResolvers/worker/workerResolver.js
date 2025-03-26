@@ -106,7 +106,7 @@ const worker_resolvers = {
       }
     },
 
-    getAvailableWorkers: async (_,__, req) => {
+    getAvailableWorkers: async (_, __, req) => {
       try {
 
         const user = authenticateUser(req.headers.authorization)
@@ -151,11 +151,15 @@ const worker_resolvers = {
             experience, 
             is_available, 
             available_from, 
-            available_to
+            available_to,
+            city,
+            address,
+            ST_X(location::geometry) AS longitude, 
+            ST_Y(location::geometry) AS latitude
           FROM workers
           WHERE user_id = $1
         `, [id]);
-  
+
         return rows[0];
       } catch (error) {
         throw new Error(error.message);
@@ -167,7 +171,7 @@ const worker_resolvers = {
   Mutation: {
     createWorker: async (_, { userId, phone, profession, experience, aadhar_number, latitude, longitude, address, city, name, available_from, available_to }, req) => {
       try {
-        
+
         const user = authenticateUser(req.headers.authorization)
         workerAuthorization(user)
 
@@ -198,12 +202,42 @@ const worker_resolvers = {
             WHERE id = $2
             RETURNING *;
           `, [is_available, id]);
-  
+
         return result.rows[0];
       } catch (error) {
         throw new Error(error.message);
       }
     },
+
+    updateWorkerDetails: async (_, { name, phone, profession, experience, address, latitude, longitude, city, available_from, available_to, userId }, req) => {
+      try {
+        const user = authenticateUser(req.headers.authorization)
+        workerAuthorization(user)
+
+        const result = await pool.query(
+          `UPDATE workers
+            SET
+              name=$1,
+              phone=$2,
+              profession=$3,
+              experience=$4,
+              address=$5,
+              location = ST_SetSRID(ST_MakePoint($7, $6), 4326),
+              city=$8,
+              available_from = $9,
+              available_to = $10,
+              updated_at = now()
+              WHERE user_id = $11
+              RETURNING *
+            `, [name, phone, profession, experience, address, latitude, longitude, city, available_from, available_to, userId]
+        )
+
+        return result.rows[0];
+      }
+      catch (e) {
+            throw new Error(e.message);
+      }
+    }
   }
 };
 

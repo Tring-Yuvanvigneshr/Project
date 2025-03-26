@@ -1,5 +1,6 @@
 const pool = require("../../../config/db");
 const { hashPassword, verifyPassword, generateToken } = require("../../../auth/auth");
+const { authenticateUser } = require("../../../middleware/authMiddleware")
 
 const userresolvers = {
   Query: {},
@@ -44,6 +45,19 @@ const userresolvers = {
         },
       };
     },
+
+    hardDeleteUser: async (_, { id }, req) => {
+      try {
+
+        authenticateUser(req.headers.authorization)
+
+        const result = await pool.query('DELETE FROM users WHERE id = $1', [id]);
+        return result.rowCount > 0;
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        throw new Error('Failed to delete user');
+      }
+    }
   },
 };
 

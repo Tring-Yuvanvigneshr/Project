@@ -16,7 +16,7 @@ const authenticateUser = (token) => {
     } catch (error) {
         if (error.name === "TokenExpiredError") {
             console.error("UNAUTHENTICATED:", error.message);
-            throw new Error("UNAUTHENTICATED: Token has expired.");
+            throw new Error("Token has expired.");
         }
         else{
             console.error("Invalid token:", error.message);

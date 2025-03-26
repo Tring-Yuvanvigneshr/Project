@@ -27,7 +27,11 @@ const worker_typedef = gql`
       available_from: String
       available_to: String
       customer_id: ID!
-    }
+      city: String
+      address: String
+      latitude: Float
+      longitude: Float
+  }
 
   
 
@@ -57,10 +61,16 @@ const worker_typedef = gql`
 
     updateWorkerDetails(
       userId: ID!
-      phone: String
-      profession: String
-      experience: Int
-      is_available: String
+      name: String!
+      phone: String!
+      profession: String!
+      experience: Int!
+      address: String!
+      city: String!
+      latitude: Float!
+      longitude: Float!
+      available_from: String!
+      available_to: String!
     ): Worker
 
     updateWorkerAvailability(is_available: String!, id: ID!): WorkerForWorker!

@@ -23,6 +23,7 @@ const user_typedef = gql`
     extend type Mutation {
         registerUser(email: String!, password: String!, role: String!): User
         signIn(email: String!, password: String!): AuthPayload
+        hardDeleteUser(id: ID!): Boolean!
     }
 `
 
