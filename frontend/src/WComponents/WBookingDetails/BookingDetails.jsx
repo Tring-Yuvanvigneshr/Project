@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useMutation, useQuery } from "@apollo/client";
-import { gql } from "@apollo/client";
+import { useMutation, useQuery, gql } from "@apollo/client";
 import { toast } from "react-toastify";
 import { GET_BOOKINGS_BY_WORKER } from "../../graphQl/queries/userQueries";
 import "react-toastify/dist/ReactToastify.css";

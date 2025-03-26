@@ -7,6 +7,8 @@ import { SIGN_IN } from "../../graphQl/mutation/userMutation";
 import "./SignIn.css";
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
+import { FaEye } from "react-icons/fa";
+import { FaEyeSlash } from "react-icons/fa";
 
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -18,6 +20,7 @@ const SignIn = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false)
   const [toastData, setToastData] = useState({
     message: '',
     type: 'info'
@@ -43,7 +46,7 @@ const SignIn = () => {
         } else if (user.role === "worker") {
           navigate("/bookings");
         } else {
-          notify({ message: "Invalid role!", type: "error"});
+          notify({ message: "Invalid role!", type: "error" });
         }
         notify({ message: "Login Successfully", type: "success" });
       }
@@ -80,15 +83,27 @@ const SignIn = () => {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+
+          <div className="password-container">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter password"
+              className="password-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <button
+              onClick={() => setShowPassword(!showPassword)}
+              type="button"
+              className="password-toggle"
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
+
           <button id="login-btn" type="submit">
-          Sign In
+            Sign In
           </button>
           <p>
             Don't have an account?{" "}
@@ -99,9 +114,9 @@ const SignIn = () => {
         </div>
       </form>
 
-      <Snackbar 
-        open={open} 
-        autoHideDuration={4000} 
+      <Snackbar
+        open={open}
+        autoHideDuration={4000}
         onClose={handleClose}
       >
         <Alert onClose={handleClose} severity={toastData.type} sx={{ width: '100%' }}>

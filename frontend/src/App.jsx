@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ApolloProvider } from "@apollo/client"
 import { Provider } from 'react-redux'
 import SignIn from './Pages/Login/SignIn'
-import Signup from './Pages/SignUp/signUp'
+import Signup from './Pages/SignUp/Signup.jsx'
 import client from './api/client'
 import { store } from './redux/store'
 import Sidebar from './Components/Sidebar/Sidebar'
@@ -19,6 +19,7 @@ import WorkerLayout from './WComponents/WorkerLayout/WorkerLayout.jsx'
 import WServiceHistory from './WComponents/WServiceHistory/ServiceHistory.jsx'
 import BookingStats from './WComponents/Bookingstats/BookingStats.jsx'
 import BookingDetails from './WComponents/WBookingDetails/BookingDetails.jsx'
+import Wprofile from './WComponents/Wprofile/Wprofile.jsx';
 
 const Layout = ({ children }) => {
   return (
@@ -42,7 +43,7 @@ const App = () => {
             <Route path='/signUp' element={<Signup />} />
             <Route path='/' element={<LandingPage />}></Route>
 
-            <Route element={<ProtectedRoute allowedRoles={["customer"]} />}> 
+            <Route element={<ProtectedRoute allowedRoles={["customer"]} />}>
               <Route path='/customerForm' element={<CustomerForm />}></Route> { /* passing id */}
               <Route path='/dashboard' element={<Layout><Dashboard /></Layout>} />
               <Route path='/history' element={<Layout><ServiceHistory /></Layout>} />
@@ -53,6 +54,7 @@ const App = () => {
             <Route element={<ProtectedRoute allowedRoles={["worker"]} />}>
               <Route path='/workerForm' element={<WorkerForm />}></Route> { /* passing id */}
               <Route path='/wHistory' element={<WorkerLayout><WServiceHistory /></WorkerLayout>} />
+              <Route path='/wProfile' element={<WorkerLayout><Wprofile /></WorkerLayout>} />
               <Route path='/bookings' element={<WorkerLayout><BookingStats /></WorkerLayout>} />
               <Route path="/booking-details/:id" element={<BookingDetails />} />
             </Route>

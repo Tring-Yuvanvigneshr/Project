@@ -53,19 +53,6 @@
     background-color: #23272b;
 }
 
-.contact h5 {
-    font-size: 1rem;
-    margin-left: 2rem;
-    margin-top: 5rem;
-    background: #5ae4a8;
-    background: linear-gradient(to right, #5ae4a8 0%, #3468a3 100%);
-    -webkit-text-fill-color: transparent;
-}
-
-.contact ul {
-    list-style: none;
-    font-size: 0.9rem;
-}
 
 .social-media {
     list-style: none;

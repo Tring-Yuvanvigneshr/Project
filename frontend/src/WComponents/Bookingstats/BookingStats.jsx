@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery, gql } from "@apollo/client";
 import { GET_BOOKINGS_BY_WORKER, GET_WORKER_DETAILS } from "../../graphQl/queries/userQueries";
 import { useDispatch, useSelector } from "react-redux";
 import { setWorkerDetails } from "../../redux/slices/workerSlice";
 import "./bookingStats.css";
-import { gql } from "@apollo/client";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";

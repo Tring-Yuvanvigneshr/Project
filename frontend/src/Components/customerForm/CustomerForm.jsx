@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { useMutation } from "@apollo/client";
-import { CREATE_CUSTOMER } from "../../graphQl/mutation/userMutation.js";
+import { CREATE_CUSTOMER } from "../../graphQl/mutation/customerMutation.js";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Snackbar, Alert } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { setCustomerDetails } from "../../redux/slices/customerSlice";
+import { sendOtp, verifyOtp } from '../..//utils/twilioService.js'
 import "./customerForm.css";
 
 const CustomerForm = () => {
@@ -22,8 +23,10 @@ const CustomerForm = () => {
     latitude: 0,
     longitude: 0,
     locationSet: false,
+    otp: ""
   });
 
+  const [otpSend, setOtpSend] = useState(false)
   const [createCustomer] = useMutation(CREATE_CUSTOMER);
 
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -78,10 +81,41 @@ const CustomerForm = () => {
     } else {
       showToast("Geolocation is not supported by this browser.", "error");
     }
-  };
+  }
+
+  const sendOTP = async () => {
+    let ph = formData.phone
+    ph = `+91${ph}`
+
+    if (formData.phone.length !== 10) {
+      showToast("Phone number must be 10 digits!", "error")
+      return;
+    }
+
+    try {
+      const res = await sendOtp(ph)
+      showToast("Otp send succesfully", "success")
+      setOtpSend(true)
+    }
+    catch (e) {
+      showToast("Connot send otp", "error")
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!otpSend) {
+      showToast("Please send OTP first!", "error");
+      return;
+    }
+
+    const isOtpValid = await verifyOtp(`+91${formData.phone}`, formData.otp);
+
+    if (!isOtpValid) {
+      showToast("Invalid OTP!", "error");
+      return;
+    }
 
     if (formData.name.trim() === "") {
       showToast("Name is required.", "error");
@@ -155,15 +189,30 @@ const CustomerForm = () => {
         />
 
         <label>Phone Number</label>
-        <input
-          type="text"
-          name="phone"
-          value={formData.phone}
-          onChange={handleChange}
-          placeholder="Enter your 10-digit phone number"
-          maxLength="10"
-          required
-        />
+        <div className="phone-container">
+          <input disabled value={`+91`}></input>
+          <input
+            type="text"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            required
+          />
+          <button type="button" onClick={sendOTP} className="send-otp-btn">Send otp</button>
+        </div>
+
+        {otpSend && <div>
+          <label>Enter your otp</label>
+
+          <input
+            type="text"
+            name="otp"
+            value={formData.otp}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        }
 
         <label>Address</label>
         <textarea

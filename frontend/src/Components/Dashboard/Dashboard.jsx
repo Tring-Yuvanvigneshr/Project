@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useQuery } from "@apollo/client";
 import { GET_CUSTOMER_DETAILS_BY_USERID } from "../../graphQl/queries/userQueries";
 import ProfileInfo from "../ProfileInfo/ProfileInfo";
@@ -20,7 +20,7 @@ const Dashboard = () => {
   if (data?.getCustomerDetailsByUserid) {
       dispatch(setCustomerDetails(data.getCustomerDetailsByUserid));
   } else {
-      navigate(`/create-customer/${user.id}`);
+      navigate(`/signIn`);
   }
 
   return (

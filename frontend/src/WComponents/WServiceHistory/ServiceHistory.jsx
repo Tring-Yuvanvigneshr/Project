@@ -73,7 +73,7 @@ const WServiceHistory = () => {
               <div className='left-section'>
                 <div><strong>Job:</strong> {booking.job_description}</div>
                 <div><strong>Status:</strong>
-                  <span className={`status-${booking.status.toLowerCase()}`}>{booking.status}</span>
+                  <span className={`status-${booking.status.toLowerCase()}`}> {booking.status}</span>
                 </div>
                 <div><strong>Payment:</strong> {booking.payment_status}</div>
                 <div><strong>Booking In:</strong> {new Date(parseInt(booking.created_at)).toLocaleString()}</div>

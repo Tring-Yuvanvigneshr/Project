@@ -24,6 +24,8 @@ export const GET_CUSTOMER_DETAILS_BY_USERID = gql`
       city
       location
       created_at
+      latitude
+      longitude
     }
   }
 `;
@@ -108,7 +110,11 @@ export const GET_WORKER_DETAILS = gql`
       available_from
       available_to
       phone
-
+      experience
+      city
+      address
+      latitude
+      longitude
     }
   }
 `;

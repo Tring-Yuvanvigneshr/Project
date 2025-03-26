@@ -51,13 +51,7 @@
 }
 
 .profile-info select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
     background-color: #fff;
-    background-image: url('data:image/svg+xml;utf8,<svg fill="%23444" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><path d="M5.5 7.5L8 10l2.5-2.5h-5z"/></svg>');
-    background-repeat: no-repeat;
-    background-position: right 12px center;
     background-size: 12px;
     cursor: pointer;
 }
@@ -133,8 +127,39 @@
     font-size: 14px;
 }
 
-@media (max-width: 768px) {
-    .profile-info {
-        width: 95%;
-    }
+.phone-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 6px;
+}
+
+.phone-container input {
+    border: 1px solid #ccc;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    width: 150px;
+}
+
+.phone-container input:disabled {
+    background: #e9ecef;    
+    width: 60px;
+}
+
+.send-otp-btn {
+    background: #007bff;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    height: 40px;
+    padding: 0 12px;
+    cursor: pointer;
+}
+
+.send-otp-btn:hover {
+    background: #0056b3;
 }

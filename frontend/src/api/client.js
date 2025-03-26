@@ -17,18 +17,14 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
-const errorLink = onError(({ graphQLErrors, networkError }) => {
+const errorLink = onError(({ graphQLErrors }) => {
   if (graphQLErrors) {
     for (let err of graphQLErrors) {
-      if (err.extensions.code === "UNAUTHENTICATED") {
-        localStorage.removeItem("token");
+      if (err.message === "Token has expired.") {
+        localStorage.removeItem("token")
         window.location.href = "/signIn";
       }
     }
-  }
-
-  if (networkError) {
-    console.error("Network Error:", networkError);
   }
 });
 

@@ -1,174 +1,191 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useMutation } from "@apollo/client";
-import { useDispatch } from "react-redux";
-import { setUser } from "../../redux/slices/authSlice";
-import { REGISTER_USER, SIGN_IN } from "../../graphQl/mutation/userMutation";
-import validator from "validator";
-import { Snackbar, Alert } from "@mui/material";
-import "./signUp.css";
+    import React, { useState } from "react";
+    import { Link, useNavigate } from "react-router-dom";
+    import { useMutation } from "@apollo/client";
+    import { useDispatch } from "react-redux";
+    import { setUser } from "../../redux/slices/authSlice";
+    import { REGISTER_USER, SIGN_IN } from "../../graphQl/mutation/userMutation";
+    import validator from "validator";
+    import { Snackbar, Alert } from "@mui/material";
+    import "./signUp.css";
+    import { FaEye } from "react-icons/fa";
+    import { FaEyeSlash } from "react-icons/fa";
 
-const SignUp = () => {
-    const [userDetails, setUserDetails] = useState({
-        email: "",
-        password: "",
-        role: "customer"
-    });
+    const SignUp = () => {
+        const [userDetails, setUserDetails] = useState({
+            email: "",
+            password: "",
+            role: "customer"
+        });
 
-    const [errorMessage, setErrorMessage] = useState(null);
-    const [emailError, setEmailError] = useState(null);
-    const [openToast, setOpenToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState("");
-    const [toastSeverity, setToastSeverity] = useState("success");
-    
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
+        const [errorMessage, setErrorMessage] = useState(null);
+        const [emailError, setEmailError] = useState(null);
+        const [openToast, setOpenToast] = useState(false);
+        const [toastMessage, setToastMessage] = useState("");
+        const [toastSeverity, setToastSeverity] = useState("success");
+        const [showPassword, setShowPassword] = useState(false)
 
-    const [registerUser, { loading }] = useMutation(REGISTER_USER, {
-        onCompleted: async (data) => {
-            showToast("Sign-up successful!", "success");
+        const navigate = useNavigate();
+        const dispatch = useDispatch();
 
-            await signIn({
-                variables: {
-                    email: userDetails.email,
-                    password: userDetails.password
-                }
-            });
-        },
-        onError: (error) => {
-            if (error.message.includes("duplicate key value")) {
-                showToast("Email already exists", "error");
-            } else {
-                showToast("Sign-up unsuccessful!", "error");
-            }
-        }
-    });
+        const [registerUser, { loading }] = useMutation(REGISTER_USER, {
+            onCompleted: async (data) => {
+                showToast("Sign-up successful!", "success");
 
-    const [signIn] = useMutation(SIGN_IN, {
-        onCompleted: (data) => {
-            if (data.signIn) {
-                const { token, user } = data.signIn;
-                
-                dispatch(setUser({ token, user }));
-
-                if (user.role === "worker") {
-                    navigate("/workerForm", { state: user.id});
+                await signIn({
+                    variables: {
+                        email: userDetails.email,
+                        password: userDetails.password
+                    }
+                });
+            },
+            onError: (error) => {
+                if (error.message.includes("duplicate key value")) {
+                    showToast("Email already exists", "error");
                 } else {
-                    navigate("/customerForm", { state: user.id});
+                    showToast("Sign-up unsuccessful!", "error");
                 }
             }
-        },
-        onError: (error) => {
-            showToast("Sign-in unsuccessful!", "error");
-        }
-    });
+        });
 
-    const showToast = (message, severity) => {
-        setToastMessage(message);
-        setToastSeverity(severity);
-        setOpenToast(true);
-    };
+        const [signIn] = useMutation(SIGN_IN, {
+            onCompleted: (data) => {
+                if (data.signIn) {
+                    const { token, user } = data.signIn;
 
-    const validatePassword = (e) => {
-        const password = e.target.value;
-        if (validator.isStrongPassword(password, {
-            minLength: 8, minLowercase: 1,
-            minUppercase: 1, minNumbers: 1, minSymbols: 1
-        })) {
-            setErrorMessage(null);
-            setUserDetails({ ...userDetails, password });
-        } else {
-            setErrorMessage("Your password is weak");
-            setUserDetails({ ...userDetails, password: "" });
-        }
-    };
+                    dispatch(setUser({ token, user }));
 
-    const validateEmail = (e) => {
-        const email = e.target.value;
-        if (!validator.isEmail(email)) {
-            setEmailError("Enter a valid Email!");
-            setUserDetails({ ...userDetails, email: "" });
-            return;
-        }
+                    if (user.role === "worker") {
+                        navigate("/workerForm", { state: user.id });
+                    } else {
+                        navigate("/customerForm", { state: user.id });
+                    }
+                }
+            },
+            onError: (error) => {
+                showToast("Sign-in unsuccessful!", "error");
+            }
+        });
 
-        setEmailError(null);
-        setUserDetails({ ...userDetails, email });
-    };
+        const showToast = (message, severity) => {
+            setToastMessage(message);
+            setToastSeverity(severity);
+            setOpenToast(true);
+        };
 
-    const handleRoleSelection = (role) => {
-        setUserDetails({ ...userDetails, role });
-    };
+        const validatePassword = (e) => {
+            const password = e.target.value;
+            if (validator.isStrongPassword(password, {
+                minLength: 8, minLowercase: 1,
+                minUppercase: 1, minNumbers: 1, minSymbols: 1
+            })) {
+                setErrorMessage(null);
+                setUserDetails({ ...userDetails, password });
+            } else {
+                setErrorMessage("Your password is weak");
+                setUserDetails({ ...userDetails, password: "" });
+            }
+        };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+        const validateEmail = (e) => {
+            const email = e.target.value;
+            if (!validator.isEmail(email)) {
+                setEmailError("Enter a valid Email!");
+                setUserDetails({ ...userDetails, email: "" });
+                return;
+            }
 
-        if (!userDetails.email || !userDetails.password) {
-            showToast("Please enter all details", "error");
-            return;
-        }
+            setEmailError(null);
+            setUserDetails({ ...userDetails, email });
+        };
 
-        try {
-            await registerUser({ variables: userDetails });
-        } catch (error) {
-            console.error("Error registering user:", error);
-        }
-    };
+        const handleRoleSelection = (role) => {
+            setUserDetails({ ...userDetails, role });
+        };
 
-    return (
-        <div className="signup-wrapper">
-            <div className="signup-container">
-                <center><h2 className="signup-header">Sign Up</h2></center>
-                <div className="role-selection">
-                    <div>
+        const handleSubmit = async (e) => {
+            e.preventDefault();
+
+            if (!userDetails.email || !userDetails.password) {
+                showToast("Please enter all details", "error");
+                return;
+            }
+
+            try {
+                await registerUser({ variables: userDetails });
+            } catch (error) {
+                console.error("Error registering user:", error);
+            }
+        };
+
+        return (
+            <div className="signup-wrapper">
+                <div className="signup-container">
+                    <center><h2 className="signup-header">Sign Up</h2></center>
+                    <div className="role-selection">
+                        <div>
+                            <button
+                                className={`role-btn ${userDetails.role === "customer" ? "selected" : ""}`}
+                                onClick={() => handleRoleSelection("customer")}
+                                type="button"
+                            >
+                                User
+                            </button>
+                            <button
+                                className={`role-btn ${userDetails.role === "worker" ? "selected" : ""}`}
+                                onClick={() => handleRoleSelection("worker")}
+                                type="button"
+                            >
+                                Worker
+                            </button>
+                        </div>
+                    </div>
+
+                    <label htmlFor="email">Email</label>
+                    <input type="email" name="email" placeholder="Enter your email" onChange={validateEmail} />
+                    {emailError && <span className="error-signUp">{emailError}</span>}
+
+                    <label htmlFor="password">Password</label>
+                    <div className="password-container-signup">
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Enter password"
+                            className="password-input-signup"
+                            onChange={validatePassword}
+                        />
                         <button
-                            className={`role-btn ${userDetails.role === "customer" ? "selected" : ""}`}
-                            onClick={() => handleRoleSelection("customer")}
+                            onClick={() => setShowPassword(!showPassword)}
                             type="button"
+                            className="password-toggle-signup"
                         >
-                            User
-                        </button>
-                        <button
-                            className={`role-btn ${userDetails.role === "worker" ? "selected" : ""}`}
-                            onClick={() => handleRoleSelection("worker")}
-                            type="button"
-                        >
-                            Worker
+                            {showPassword ? <FaEyeSlash /> : <FaEye />}
                         </button>
                     </div>
-                </div>
+                    {errorMessage && <span className="error-signUp">{errorMessage}</span>}
 
-                <label htmlFor="email">Email</label>
-                <input type="email" name="email" placeholder="Enter your email" onChange={validateEmail} />
-                {emailError && <span className="error">{emailError}</span>}
+                    <button className="register-btn" onClick={handleSubmit} disabled={emailError || errorMessage}>
+                        {loading ? "Registering..." : "Register"}
+                    </button>
 
-                <label htmlFor="password">Password</label>
-                <input type="password" name="password" placeholder="Create a password" onChange={validatePassword} />
-                {errorMessage && <span className="error">{errorMessage}</span>}
+                    <p className="signin-redirect">
+                        Already have an account? <Link to={'/signIn'}>Sign In</Link>
+                    </p>
 
-                <button className="register-btn" onClick={handleSubmit} disabled={emailError || errorMessage}>
-                    {loading ? "Registering..." : "Register"}
-                </button>
-
-                <p className="signin-redirect">
-                    Already have an account? <Link to={'/signIn'}>Sign In</Link>
-                </p>
-
-                <Snackbar 
-                    open={openToast} 
-                    autoHideDuration={4000} 
-                    onClose={() => setOpenToast(false)}
-                >
-                    <Alert 
-                        onClose={() => setOpenToast(false)} 
-                        severity={toastSeverity}
-                        variant="filled"
+                    <Snackbar
+                        open={openToast}
+                        autoHideDuration={4000}
+                        onClose={() => setOpenToast(false)}
                     >
-                        {toastMessage}
-                    </Alert>
-                </Snackbar>
+                        <Alert
+                            onClose={() => setOpenToast(false)}
+                            severity={toastSeverity}
+                            variant="filled"
+                        >
+                            {toastMessage}
+                        </Alert>
+                    </Snackbar>
+                </div>
             </div>
-        </div>
-    );
-};
+        );
+    };
 
-export default SignUp;
+    export default SignUp;

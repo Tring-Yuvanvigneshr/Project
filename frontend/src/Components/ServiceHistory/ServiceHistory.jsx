@@ -175,7 +175,7 @@ const ServiceHistory = () => {
 
 
                 <div>
-                  {item.status === 'pending' || item.status === 'accepted' && (
+                  { (item.status === 'pending' || item.status === 'accepted') && (
                     <button
                       className='cancel-booking-btn'
                       onClick={() => handleCancelBooking(item.id)}

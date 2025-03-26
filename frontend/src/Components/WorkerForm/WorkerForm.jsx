@@ -1,46 +1,11 @@
 import React, { useState } from "react";
-import { useMutation, gql } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import "./workerForm.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
-
-const CREATE_WORKER = gql`
-  mutation CreateWorker(
-    $userId: ID!
-    $name: String!
-    $phone: String!
-    $profession: String!
-    $experience: Int!
-    $aadhar_number: String!
-    $latitude: Float!
-    $longitude: Float!
-    $address: String!
-    $city: String!
-    $available_from: String!
-    $available_to: String!
-  ) {
-    createWorker(
-      userId: $userId
-      name: $name
-      phone: $phone
-      profession: $profession
-      experience: $experience
-      aadhar_number: $aadhar_number
-      latitude: $latitude
-      longitude: $longitude
-      address: $address
-      city: $city
-      available_from: $available_from
-      available_to: $available_to
-    ) {
-      id
-      name
-      phone
-      profession
-    }
-  }
-`;
+import { sendOtp, verifyOtp } from '../../utils/twilioService'
+import { CREATE_WORKER } from '../../graphQl/mutation/workerMutation'
 
 export default function AddWorkerForm() {
   const location = useLocation()
@@ -61,7 +26,10 @@ export default function AddWorkerForm() {
     available_from: "",
     available_to: "",
     locationSet: false,
+    otp: "",
   })
+
+  const [otpSend, setOtpSend] = useState(false)
 
   const [createWorker] = useMutation(CREATE_WORKER);
   const [open, setOpen] = useState(false);
@@ -87,7 +55,7 @@ export default function AddWorkerForm() {
         return;
       }
     }
-    
+
     setFormData({
       ...formData,
       [name]: value,
@@ -139,8 +107,39 @@ export default function AddWorkerForm() {
     }
   }
 
+  const sendOTP = async () => {
+    let ph = formData.phone
+    ph = `+91${ph}`
+
+    if (formData.phone.length !== 10) {
+      showToast("Phone number must be 10 digits!", "error")
+      return;
+    }
+
+    try {
+      const res = await sendOtp(ph)
+      showToast("Otp send succesfully", "success")
+      setOtpSend(true)
+    }
+    catch (e) {
+      showToast("Connot send otp", "error")
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!otpSend) {
+      showToast("Please send OTP first!", "error");
+      return;
+    }
+
+    const isOtpValid = await verifyOtp(`+91${formData.phone}`, formData.otp);
+
+    if (!isOtpValid) {
+      showToast("Invalid OTP!", "error");
+      return;
+    }
 
     if (formData.profession.trim() === "") {
       showToast("Please select a profession!", "error")
@@ -213,13 +212,30 @@ export default function AddWorkerForm() {
         />
 
         <label>Phone Number</label>
-        <input
-          type="text"
-          name="phone"
-          value={formData.phone}
-          onChange={handleChange}
-          required
-        />
+        <div className="phone-container">
+          <input disabled value={`+91`}></input>
+          <input
+            type="text"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            required
+          />
+          <button type="button" onClick={sendOTP} className="send-otp-btn">Send otp</button>
+        </div>
+        
+        {otpSend && <div>
+          <label>Enter your otp</label>
+
+          <input
+            type="text"
+            name="otp"
+            value={formData.otp}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        }
 
         <label>Profession</label>
         <select

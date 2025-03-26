@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { useMutation } from "@apollo/client";
-import { UPDATE_CUSTOMER } from "../../graphQl/mutation/userMutation.js";
-import { setCustomerDetails } from "../../redux/slices/customerSlice";
+import { UPDATE_CUSTOMER } from "../../graphQl/mutation/customerMutation";
+import { HARD_DELETE_USER } from "../../graphQl/mutation/userMutation"
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { sendOtp, verifyOtp } from '../../utils/twilioService'
 import "react-toastify/dist/ReactToastify.css";
 import "./profile.css";
 
 const ProfileInfo = () => {
   const customerDetails = useSelector((state) => state.customer.customerDetails);
   const user = useSelector((state) => state.auth.user);
-  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
+  const [otpSend, setOtpSend] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -21,10 +24,22 @@ const ProfileInfo = () => {
     latitude: 0,
     longitude: 0,
     locationSet: false,
+    otp: "",
   });
 
-  const [updateCustomer] = useMutation(UPDATE_CUSTOMER);
+  const [showDeleteModal, setDeleteModal] = useState(false);
+  const [inputText, setInputText] = useState("");
 
+  const [updateCustomer] = useMutation(UPDATE_CUSTOMER);
+  const [hardDeleteCustomer] = useMutation(HARD_DELETE_USER, {
+    onCompleted: () => {
+      toast.success("Account deleted successfully!");
+      navigate("/signUp");
+    },
+    onError: () => {
+      toast.error("Failed to delete account!");
+    },
+  });
 
   useEffect(() => {
     if (customerDetails) {
@@ -46,13 +61,26 @@ const ProfileInfo = () => {
   };
 
   const validateForm = () => {
+
+    // if (!otpSend) {
+    //     toast.error("Please send OTP first!");
+    //     return;
+    // }
+
+    // const isOtpValid = await verifyOtp(`+91${formData.mobile}`, formData.otp);
+
+    // if (!isOtpValid) {
+    //     toast.error("Invalid OTP!");
+    //     return;
+    // }
+
     if (formData.name.trim() === "") {
       toast.error("Name cannot be empty.");
       return false;
     }
 
     if (!/^[0-9]{10}$/.test(formData.mobile)) {
-      toast.error("Phone number must be exactly 10 digits.");
+      toast.error("Phone number must be 10 digits!")
       return false;
     }
 
@@ -100,13 +128,31 @@ const ProfileInfo = () => {
     }
   };
 
+  const sendOTP = async () => {
+    let ph = formData.mobile
+    ph = `+91${ph}`
+
+    if (!/^[0-9]{10}$/.test(formData.mobile)) {
+      toast.error("Phone number must be 10 digits!")
+      return;
+    }
+
+    try {
+      const res = await sendOtp(ph)
+      toast.success("Otp send succesfully")
+      setOtpSend(true)
+    }
+    catch (e) {
+      toast.error("Connot send otp")
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) return;
 
     try {
-      const { data } = await updateCustomer({
+      await updateCustomer({
         variables: {
           userId: user.id,
           name: formData.name,
@@ -117,11 +163,17 @@ const ProfileInfo = () => {
           longitude: formData.longitude,
         },
       });
-
-      // dispatch(setCustomerDetails(data.updateCustomer));
       toast.success("Profile updated successfully!");
     } catch (err) {
       toast.error("Failed to update profile!");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      await hardDeleteCustomer({ variables: { id: user.id } });
+    } catch (err) {
+      console.error("Error deleting account:", err);
     }
   };
 
@@ -130,61 +182,86 @@ const ProfileInfo = () => {
       <h3>Update Profile Information</h3>
       <form onSubmit={handleSubmit}>
         <label>Name</label>
-        <input
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
+        <input type="text" name="name" value={formData.name} onChange={handleChange} required />
 
         <label>Email</label>
-        <input
-          type="email"
-          name="email"
-          value={formData.email}
-          disabled
-        />
+        <input type="email" name="email" value={formData.email} disabled />
 
-  
         <label>Mobile No</label>
-        <input
-          type="text"
-          name="mobile"
-          value={formData.mobile}
-          onChange={handleChange}
-          required
-        />
+        <div className="phone-container">
+          <input disabled value={`+91`}></input>
+          <input
+            type="text"
+            name="mobile"
+            value={formData.mobile}
+            onChange={handleChange}
+            required
+          />
+          <button type="button" className="send-otp-btn" onClick={sendOTP}>Send otp</button>
+        </div>
+
+        {otpSend && <div>
+          <label>Enter your otp</label>
+
+          <input
+            type="text"
+            name="otp"
+            value={formData.otp}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        }
+
 
         <label>Address</label>
-        <textarea
-          name="address"
-          value={formData.address}
-          onChange={handleChange}
-          required
-        />
+        <textarea name="address" value={formData.address} onChange={handleChange} required />
 
         <label>City</label>
-        <input
-          type="text"
-          name="city"
-          value={formData.city}
-          onChange={handleChange}
-          required
-        />
+        <input type="text" name="city" value={formData.city} onChange={handleChange} required />
 
-        <button
-          type="button"
-          className={`get-location-btn ${formData.locationSet ? 'success' : ''}`}
-          onClick={handleGetLocation}
-        >
+        <button type="button" className={`get-location-btn ${formData.locationSet ? 'success' : ''}`} onClick={handleGetLocation}>
           {formData.locationSet ? "Location Set ✔" : "Get Current Location"}
         </button>
 
-        <button type="submit" className="save-btn">
-          Update Profile
-        </button>
+        <button type="submit" className="save-btn">Update Profile</button>
       </form>
+
+      <button onClick={() => setDeleteModal(true)} className="delete-btn">
+        Delete Account
+      </button>
+
+      {showDeleteModal && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <h2>Whoa, there!</h2>
+            <p>
+              Once you delete your account, there's no getting it back.
+              <br />
+              Make sure you want to do this.
+            </p>
+            <input
+              type="text"
+              placeholder="Confirm by typing DELETE"
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              required
+            />
+            <div className="modal-buttons">
+              <button className="cancel-btn" onClick={() => setDeleteModal(false)}>
+                CANCEL
+              </button>
+              <button
+                className="delete-btn"
+                onClick={handleDeleteAccount}
+                disabled={inputText !== "DELETE"}
+              >
+                DELETE
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
